@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+env/
+env.example
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Database file (optional: only if you don't want to push your local DB)
+finance.db
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
