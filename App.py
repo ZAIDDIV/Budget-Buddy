@@ -1,12 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
+# ---- App Setup ----
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.DATABASE_URL
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 
-# Initialize database
 db = SQLAlchemy(app)
 
 # ---- Database Models ----
@@ -17,43 +17,65 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     budgets = db.relationship('Budget', backref='owner', lazy=True)
 
+
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-# ---- Test Home Route ----
-from flask import request, redirect, url_for, flash
 
+# ---- Home Route ----
+@app.route('/')
+def home():
+    return render_template("index.html")
+
+
+# ---- Signup Route ----
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
-        password = request.form.get('password')  # for now plain text (we'll hash later)
+        password = request.form.get('password')  # plain text for now
 
-        # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash("Email already registered!", "error")
             return redirect(url_for('signup'))
 
-        # Create new user
         new_user = User(username=username, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
 
         flash("Account created successfully!", "success")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     return render_template('signup.html')
 
 
+# ---- Login Route ----
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
 
-@app.route('/')
-def home():
-    return render_template("index.html")  # <-- Renders the HTML page
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.password == password:
+            flash("Login successful!", "success")
+            return redirect(url_for('home'))
+        else:
+            flash("Invalid email or password!", "error")
+            return redirect(url_for('login'))
+
+    return render_template("login.html")
+
+
+# ---- Create Database Tables ----
+with app.app_context():
+    db.create_all()
 
 
 if __name__ == "__main__":
