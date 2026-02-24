@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assets | Budget Buddy</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            padding: 30px;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 10px;
+        }
+
+        canvas {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Add Your Assets</h2>
+
+<form method="POST">
+    <input type="text" name="category" placeholder="Asset Category (Salary, Freelance...)" required>
+    <input type="number" step="0.01" name="amount" placeholder="Amount" required>
+    <button type="submit">Add Asset</button>
+</form>
+
+<h3>Your Assets</h3>
+
+<table>
+    <tr>
+        <th>Category</th>
+        <th>Amount</th>
+    </tr>
+    {% for asset in assets %}
+    <tr>
+        <td>{{ asset.category }}</td>
+        <td>{{ asset.amount }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<canvas id="assetChart"></canvas>
+
+<script>
+    const ctx = document.getElementById('assetChart');
+
+    const data = {
+        labels: [{% for asset in assets %}"{{ asset.category }}",{% endfor %}],
+        datasets: [{
+            label: 'Assets Distribution',
+            data: [{% for asset in assets %}{{ asset.amount }},{% endfor %}],
+        }]
+    };
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: data,
+    });
+</script>
+
+</body>
+</html>

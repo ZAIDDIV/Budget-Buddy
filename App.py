@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
@@ -15,7 +15,9 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+
     budgets = db.relationship('Budget', backref='owner', lazy=True)
+    assets = db.relationship('Asset', backref='owner', lazy=True)
 
 
 class Budget(db.Model):
@@ -25,10 +27,50 @@ class Budget(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
+class Asset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+
 # ---- Home Route ----
 @app.route('/')
 def home():
-    return render_template("index.html")
+    if "user_id" in session:
+        return render_template("index.html")
+    else:
+        return render_template("welcome.html")
+
+
+# ---- Assets Route ----
+@app.route("/assets", methods=["GET", "POST"])
+def assets():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        category = request.form.get("category")
+        amount = request.form.get("amount")
+
+        if not category or not amount:
+            flash("Please fill all fields.", "error")
+            return redirect(url_for("assets"))
+
+        new_asset = Asset(
+            category=category,
+            amount=float(amount),
+            user_id=session["user_id"]
+        )
+
+        db.session.add(new_asset)
+        db.session.commit()
+
+        flash("Asset added successfully!", "success")
+        return redirect(url_for("assets"))
+
+    user_assets = Asset.query.filter_by(user_id=session["user_id"]).all()
+    return render_template("assets.html", assets=user_assets)
 
 
 # ---- Signup Route ----
@@ -37,7 +79,7 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
-        password = request.form.get('password')  # plain text for now
+        password = request.form.get('password')
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -64,6 +106,8 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and user.password == password:
+            session["user_id"] = user.id
+            session["username"] = user.username
             flash("Login successful!", "success")
             return redirect(url_for('home'))
         else:
@@ -71,6 +115,14 @@ def login():
             return redirect(url_for('login'))
 
     return render_template("login.html")
+
+
+# ---- Logout Route ----
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out successfully!", "success")
+    return redirect(url_for('home'))
 
 
 # ---- Create Database Tables ----
