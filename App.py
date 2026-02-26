@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 
 # ---- App Setup ----
@@ -80,17 +81,42 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        terms = request.form.get('terms')
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash("Email already registered!", "error")
+        # Validate all fields filled
+        if not username or not email or not password or not confirm_password:
+            flash("All fields are required.", "error")
             return redirect(url_for('signup'))
 
-        new_user = User(username=username, email=email, password=password)
+        # Validate terms accepted
+        if not terms:
+            flash("You must accept the Terms & Conditions to register.", "error")
+            return redirect(url_for('signup'))
+
+        # Validate passwords match
+        if password != confirm_password:
+            flash("Passwords do not match!", "error")
+            return redirect(url_for('signup'))
+
+        # Validate password length
+        if len(password) < 8:
+            flash("Password must be at least 8 characters long.", "error")
+            return redirect(url_for('signup'))
+
+        # Check if email already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash("Email already registered! Please login.", "error")
+            return redirect(url_for('signup'))
+
+        # Hash password and save user
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
-        flash("Account created successfully!", "success")
+        flash("Account created successfully! Please login.", "success")
         return redirect(url_for('login'))
 
     return render_template('signup.html')
@@ -103,12 +129,16 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
 
+        if not email or not password:
+            flash("Please fill in all fields.", "error")
+            return redirect(url_for('login'))
+
         user = User.query.filter_by(email=email).first()
 
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
             session["username"] = user.username
-            flash("Login successful!", "success")
+            flash(f"Welcome back, {user.username}!", "success")
             return redirect(url_for('home'))
         else:
             flash("Invalid email or password!", "error")
