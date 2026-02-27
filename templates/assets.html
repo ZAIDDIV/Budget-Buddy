@@ -1,89 +1,663 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Assets | Budget Buddy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets — Budget Buddy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #c8a96e;
+            --accent-dim: rgba(200, 169, 110, 0.12);
+            --text: #f0ece4;
+            --muted: #7a7a7a;
+            --sidebar-w: 240px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #111;
-            color: white;
-            font-family: Arial;
-            padding: 30px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
         }
 
-        form {
-            margin-bottom: 30px;
+        /* ---- Navbar ---- */
+        .navbar {
+            background-color: rgba(13,13,13,0.97);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        input {
-            padding: 10px;
-            margin-right: 10px;
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--accent);
+            text-decoration: none;
+            letter-spacing: 1px;
         }
 
-        button {
-            padding: 10px 15px;
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-user {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .nav-user span {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.82rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-logout:hover {
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* Hamburger for mobile */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 1rem;
         }
 
-        table {
+        /* ---- Sidebar ---- */
+        .sidebar {
+            position: fixed;
+            top: 57px;
+            left: 0;
+            width: var(--sidebar-w);
+            height: calc(100vh - 57px);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 28px 0;
+            z-index: 100;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-section {
+            padding: 0 16px;
+            margin-bottom: 28px;
+        }
+
+        .sidebar-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-link:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .sidebar-link.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .sidebar-link .icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px;
+        }
+
+        /* ---- Main Content ---- */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            margin-top: 57px;
+            padding: 36px 40px;
+            min-height: calc(100vh - 57px);
+        }
+
+        /* ---- Flash ---- */
+        .flash-container {
+            position: fixed;
+            top: 72px;
+            right: 20px;
+            z-index: 999;
+            max-width: 340px;
+        }
+
+        .flash-msg {
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash-success { background: rgba(34,197,94,0.12); border-color: #22c55e; color: #86efac; }
+        .flash-error   { background: rgba(239,68,68,0.12);  border-color: #ef4444; color: #fca5a5; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ---- Page Header ---- */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .page-sub {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        /* ---- Cards ---- */
+        .card-dark {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            position: relative;
+        }
+
+        .card-dark::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 24px; right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .card-title {
+            font-size: 0.82rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        /* ---- Form ---- */
+        .form-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.93rem;
+            padding: 11px 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--surface2);
+            border-color: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 0 3px rgba(200,169,110,0.1);
+        }
+
+        .form-control::placeholder { color: #3a3a3a; }
+
+        .form-select option { background: var(--surface2); }
+
+        .btn-add {
+            background: var(--accent);
+            color: #0d0d0d;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 11px 28px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* ---- Summary Cards ---- */
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 22px;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .summary-value.gold { color: var(--accent); }
+        .summary-value.green { color: #86efac; }
+
+        /* ---- Table ---- */
+        .table-dark-custom {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
+            margin-top: 4px;
         }
 
-        th, td {
-            border: 1px solid #333;
-            padding: 10px;
+        .table-dark-custom th {
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+            text-align: left;
         }
 
-        canvas {
-            margin-top: 40px;
+        .table-dark-custom td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .table-dark-custom tr:last-child td { border-bottom: none; }
+
+        .table-dark-custom tbody tr {
+            transition: background 0.15s;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background: var(--surface2);
+        }
+
+        .category-badge {
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-size: 0.78rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .amount-cell {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: #86efac;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        /* ---- Chart ---- */
+        .chart-wrap {
+            position: relative;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .page-title { font-size: 1.6rem; }
         }
     </style>
 </head>
 <body>
 
-<h2>Add Your Assets</h2>
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
-<form method="POST">
-    <input type="text" name="category" placeholder="Asset Category (Salary, Freelance...)" required>
-    <input type="number" step="0.01" name="amount" placeholder="Amount" required>
-    <button type="submit">Add Asset</button>
-</form>
+<!-- Navbar -->
+<nav class="navbar">
+    <div style="display:flex; align-items:center; gap:14px;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <a class="navbar-brand" href="{{ url_for('home') }}">Budget Buddy</a>
+    </div>
+    <div class="navbar-right">
+        <span class="nav-user">Hello, <span>{{ session.username }}</span></span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+</nav>
 
-<h3>Your Assets</h3>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <a href="#" class="sidebar-link">
+            <span class="icon">🏠</span> Dashboard
+        </a>
+        <a href="{{ url_for('assets') }}" class="sidebar-link active">
+            <span class="icon">💰</span> Assets
+        </a>
+        <a href="#" class="sidebar-link">
+            <span class="icon">📊</span> Transactions
+        </a>
+        <a href="#" class="sidebar-link">
+            <span class="icon">📈</span> Analysis
+        </a>
+    </div>
 
-<table>
-    <tr>
-        <th>Category</th>
-        <th>Amount</th>
-    </tr>
-    {% for asset in assets %}
-    <tr>
-        <td>{{ asset.category }}</td>
-        <td>{{ asset.amount }}</td>
-    </tr>
-    {% endfor %}
-</table>
+    <hr class="sidebar-divider">
 
-<canvas id="assetChart"></canvas>
+    <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <a href="#" class="sidebar-link">
+            <span class="icon">🤖</span> Ask Buddy
+        </a>
+    </div>
 
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <a href="{{ url_for('login') }}" class="sidebar-link">
+            <span class="icon">🔑</span> Login
+        </a>
+        <a href="{{ url_for('signup') }}" class="sidebar-link">
+            <span class="icon">✨</span> Sign Up
+        </a>
+        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:#fca5a5;">
+            <span class="icon">🚪</span> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <p class="page-eyebrow">Finance</p>
+        <h1 class="page-title">Your Assets</h1>
+        <p class="page-sub">Track your income sources and asset distribution</p>
+    </div>
+
+    <!-- Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="summary-card">
+                <div class="summary-label">Total Assets</div>
+                <div class="summary-value gold">
+                    ₨ {{ "%.0f"|format(assets|sum(attribute='amount')) if assets else 0 }}
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="summary-card">
+                <div class="summary-label">Sources</div>
+                <div class="summary-value">{{ assets|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Add Asset Form -->
+        <div class="col-lg-5">
+            <div class="card-dark">
+                <div class="card-title">Add New Asset</div>
+                <form method="POST" action="{{ url_for('assets') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="Salary">💼 Salary</option>
+                            <option value="Freelance">💻 Freelance</option>
+                            <option value="Investment">📈 Investment</option>
+                            <option value="Business">🏢 Business</option>
+                            <option value="Rental Income">🏠 Rental Income</option>
+                            <option value="Gift">🎁 Gift</option>
+                            <option value="Other">📦 Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Amount (₨)</label>
+                        <input type="number" step="0.01" name="amount"
+                               class="form-control" placeholder="e.g. 50000" required min="0">
+                    </div>
+                    <button type="submit" class="btn-add w-100">+ Add Asset</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-7">
+            <div class="card-dark" style="height: 100%;">
+                <div class="card-title">Distribution</div>
+                {% if assets %}
+                <div class="chart-wrap">
+                    <canvas id="assetChart"></canvas>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    Add assets to see your distribution chart
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Assets Table -->
+        <div class="col-12">
+            <div class="card-dark">
+                <div class="card-title">All Assets</div>
+                {% if assets %}
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td style="color: var(--muted); font-size: 0.82rem;">{{ loop.index }}</td>
+                            <td><span class="category-badge">{{ asset.category }}</span></td>
+                            <td class="amount-cell">₨ {{ "%.2f"|format(asset.amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">💰</div>
+                    No assets yet. Add your first one above!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const ctx = document.getElementById('assetChart');
+    // Flash auto-dismiss
+    setTimeout(() => {
+        document.querySelectorAll('.flash-msg').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transition = 'opacity 0.5s';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
 
-    const data = {
-        labels: [{% for asset in assets %}"{{ asset.category }}",{% endfor %}],
-        datasets: [{
-            label: 'Assets Distribution',
-            data: [{% for asset in assets %}{{ asset.amount }},{% endfor %}],
-        }]
-    };
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
 
+    // Chart
+    {% if assets %}
+    const ctx = document.getElementById('assetChart').getContext('2d');
     new Chart(ctx, {
-        type: 'pie',
-        data: data,
+        type: 'doughnut',
+        data: {
+            labels: [{% for asset in assets %}"{{ asset.category }}",{% endfor %}],
+            datasets: [{
+                data: [{% for asset in assets %}{{ asset.amount }},{% endfor %}],
+                backgroundColor: [
+                    'rgba(200,169,110,0.85)',
+                    'rgba(134,239,172,0.85)',
+                    'rgba(125,211,252,0.85)',
+                    'rgba(192,132,252,0.85)',
+                    'rgba(251,191,36,0.85)',
+                    'rgba(248,113,113,0.85)',
+                    'rgba(94,234,212,0.85)',
+                ],
+                borderColor: '#161616',
+                borderWidth: 3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#f0ece4',
+                        font: { family: 'DM Sans', size: 12 },
+                        padding: 16,
+                        boxWidth: 12,
+                        borderRadius: 4,
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}`
+                    }
+                }
+            },
+            cutout: '65%',
+        }
     });
+    {% endif %}
 </script>
-
 </body>
 </html>

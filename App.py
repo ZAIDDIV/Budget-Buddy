@@ -39,9 +39,8 @@ class Asset(db.Model):
 @app.route('/')
 def home():
     if "user_id" in session:
-        return render_template("index.html")
-    else:
-        return render_template("welcome.html")
+        return redirect(url_for('assets'))  # logged in → go straight to assets
+    return render_template("welcome.html")  # not logged in → welcome page
 
 
 # ---- Assets Route ----
@@ -139,7 +138,7 @@ def login():
             session["user_id"] = user.id
             session["username"] = user.username
             flash(f"Welcome back, {user.username}!", "success")
-            return redirect(url_for('home'))
+            return redirect(url_for('assets'))  # login → go straight to assets
         else:
             flash("Invalid email or password!", "error")
             return redirect(url_for('login'))

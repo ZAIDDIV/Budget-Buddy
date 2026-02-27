@@ -513,8 +513,12 @@
                 <li class="nav-item"><a class="nav-link" href="#faq">F.A.Q</a></li>
             </ul>
             <div class="d-flex gap-2 mt-2 mt-lg-0">
-                <a href="{{ url_for('login') }}" class="nav-link btn-nav-login">Login</a>
-                <a href="{{ url_for('signup') }}" class="nav-link btn-nav-signup">Get Started</a>
+                {% if session.user_id %}
+                    <a href="{{ url_for('assets') }}" class="nav-link btn-nav-signup">Go to Dashboard →</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link btn-nav-login">Login</a>
+                    <a href="{{ url_for('login') }}" class="nav-link btn-nav-signup">Get Started</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -529,8 +533,12 @@
                 <h1 class="hero-title">Your Money.<br>Your Rules.<br><span>Budget Buddy.</span></h1>
                 <p class="hero-tagline">Why stress over every rupee? Budget Buddy gives you the clarity to spend smart, save more, and actually sleep at night.</p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <a href="{{ url_for('signup') }}" class="btn-hero-primary">Start for Free →</a>
-                    <a href="#about" class="btn-hero-secondary">See How It Works</a>
+                    {% if session.user_id %}
+                        <a href="{{ url_for('assets') }}" class="btn-hero-primary">Go to Dashboard →</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn-hero-primary">Start for Free →</a>
+                        <a href="#about" class="btn-hero-secondary">See How It Works</a>
+                    {% endif %}
                 </div>
                 <div class="stats-row">
                     <div class="stat-item">
@@ -720,7 +728,11 @@
     <div class="container">
         <h2 class="cta-title">Ready to own your finances?</h2>
         <p class="cta-sub">Why worry when your Budget Buddy is right here.</p>
-        <a href="{{ url_for('signup') }}" class="btn-hero-primary">Create Free Account →</a>
+        {% if session.user_id %}
+            <a href="{{ url_for('assets') }}" class="btn-hero-primary">Go to Dashboard →</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn-hero-primary">Create Free Account →</a>
+        {% endif %}
     </div>
 </section>
 
@@ -729,8 +741,13 @@
     <span class="brand">Budget Buddy</span>
     <span class="copy">© 2025 Budget Buddy. Built with Flask & SQLite.</span>
     <div class="d-flex gap-3">
-        <a href="{{ url_for('login') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Login</a>
-        <a href="{{ url_for('signup') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Sign Up</a>
+        {% if session.user_id %}
+            <a href="{{ url_for('assets') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Dashboard</a>
+            <a href="{{ url_for('logout') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Login</a>
+            <a href="{{ url_for('signup') }}" style="color: var(--muted); font-size: 0.82rem; text-decoration: none;">Sign Up</a>
+        {% endif %}
     </div>
 </footer>
 
