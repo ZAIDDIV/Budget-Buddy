@@ -15,6 +15,8 @@
             --border: #2a2a2a;
             --accent: #c8a96e;
             --accent-dim: rgba(200, 169, 110, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
             --text: #f0ece4;
             --muted: #7a7a7a;
             --sidebar-w: 240px;
@@ -36,9 +38,7 @@
             border-bottom: 1px solid var(--border);
             padding: 14px 24px;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 200;
             display: flex;
             align-items: center;
@@ -53,21 +53,9 @@
             letter-spacing: 1px;
         }
 
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .nav-user {
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-
-        .nav-user span {
-            color: var(--text);
-            font-weight: 500;
-        }
+        .navbar-right { display: flex; align-items: center; gap: 16px; }
+        .nav-user { font-size: 0.85rem; color: var(--muted); }
+        .nav-user span { color: var(--text); font-weight: 500; }
 
         .btn-logout {
             background: transparent;
@@ -80,13 +68,8 @@
             transition: all 0.2s;
             font-family: 'DM Sans', sans-serif;
         }
+        .btn-logout:hover { border-color: #ef4444; color: #fca5a5; }
 
-        .btn-logout:hover {
-            border-color: #ef4444;
-            color: #fca5a5;
-        }
-
-        /* Hamburger for mobile */
         .sidebar-toggle {
             display: none;
             background: none;
@@ -101,8 +84,7 @@
         /* ---- Sidebar ---- */
         .sidebar {
             position: fixed;
-            top: 57px;
-            left: 0;
+            top: 57px; left: 0;
             width: var(--sidebar-w);
             height: calc(100vh - 57px);
             background: var(--surface);
@@ -113,10 +95,7 @@
             transition: transform 0.3s ease;
         }
 
-        .sidebar-section {
-            padding: 0 16px;
-            margin-bottom: 28px;
-        }
+        .sidebar-section { padding: 0 16px; margin-bottom: 28px; }
 
         .sidebar-label {
             font-size: 0.7rem;
@@ -140,29 +119,10 @@
             transition: all 0.2s;
             margin-bottom: 2px;
         }
-
-        .sidebar-link:hover {
-            background: var(--surface2);
-            color: var(--text);
-        }
-
-        .sidebar-link.active {
-            background: var(--accent-dim);
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        .sidebar-link .icon {
-            font-size: 1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 16px;
-        }
+        .sidebar-link:hover { background: var(--surface2); color: var(--text); }
+        .sidebar-link.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
+        .sidebar-link .icon { font-size: 1rem; width: 20px; text-align: center; }
+        .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 16px; }
 
         /* ---- Main Content ---- */
         .main-content {
@@ -174,54 +134,51 @@
 
         /* ---- Flash ---- */
         .flash-container {
-            position: fixed;
-            top: 72px;
-            right: 20px;
-            z-index: 999;
-            max-width: 340px;
+            position: fixed; top: 72px; right: 20px;
+            z-index: 999; max-width: 340px;
         }
-
         .flash-msg {
-            padding: 12px 18px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            margin-bottom: 8px;
-            border-left: 3px solid;
-            animation: slideIn 0.3s ease;
+            padding: 12px 18px; border-radius: 8px;
+            font-size: 0.88rem; margin-bottom: 8px;
+            border-left: 3px solid; animation: slideIn 0.3s ease;
         }
-
         .flash-success { background: rgba(34,197,94,0.12); border-color: #22c55e; color: #86efac; }
         .flash-error   { background: rgba(239,68,68,0.12);  border-color: #ef4444; color: #fca5a5; }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(20px); }
             to   { opacity: 1; transform: translateX(0); }
         }
 
         /* ---- Page Header ---- */
-        .page-header {
-            margin-bottom: 32px;
-        }
-
+        .page-header { margin-bottom: 32px; }
         .page-eyebrow {
-            font-size: 0.75rem;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 8px;
+            font-size: 0.75rem; letter-spacing: 2.5px;
+            text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
         }
-
         .page-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
+            font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 6px;
         }
+        .page-sub { font-size: 0.9rem; color: var(--muted); }
 
-        .page-sub {
-            font-size: 0.9rem;
+        /* ---- Section Divider ---- */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 40px 0 28px;
+        }
+        .section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-divider-label {
+            font-size: 0.72rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
             color: var(--muted);
+            white-space: nowrap;
         }
 
         /* ---- Cards ---- */
@@ -232,7 +189,6 @@
             padding: 28px;
             position: relative;
         }
-
         .card-dark::before {
             content: '';
             position: absolute;
@@ -240,7 +196,9 @@
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
         }
-
+        .card-dark.expense-card::before {
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+        }
         .card-title {
             font-size: 0.82rem;
             letter-spacing: 1.5px;
@@ -251,13 +209,9 @@
 
         /* ---- Form ---- */
         .form-label {
-            font-size: 0.8rem;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
+            font-size: 0.8rem; color: var(--muted);
+            letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;
         }
-
         .form-control, .form-select {
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -268,17 +222,31 @@
             padding: 11px 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-
         .form-control:focus, .form-select:focus {
             background: var(--surface2);
             border-color: var(--accent);
             color: var(--text);
             box-shadow: 0 0 0 3px rgba(200,169,110,0.1);
         }
-
+        .expense-card .form-control:focus,
+        .expense-card .form-select:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+        }
         .form-control::placeholder { color: #3a3a3a; }
-
         .form-select option { background: var(--surface2); }
+
+        /* Custom label input (hidden by default) */
+        .custom-label-wrap {
+            display: none;
+            margin-top: 10px;
+            animation: fadeIn 0.2s ease;
+        }
+        .custom-label-wrap.show { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
         .btn-add {
             background: var(--accent);
@@ -293,8 +261,12 @@
             font-family: 'DM Sans', sans-serif;
             white-space: nowrap;
         }
-
         .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        .btn-add.btn-expense {
+            background: var(--red);
+            color: #fff;
+        }
 
         /* ---- Summary Cards ---- */
         .summary-card {
@@ -303,24 +275,19 @@
             border-radius: 10px;
             padding: 20px 22px;
         }
-
         .summary-label {
-            font-size: 0.75rem;
-            color: var(--muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+            font-size: 0.75rem; color: var(--muted);
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
         }
-
         .summary-value {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--text);
+            font-size: 1.6rem; font-weight: 700; color: var(--text);
         }
-
         .summary-value.gold { color: var(--accent); }
         .summary-value.green { color: #86efac; }
+        .summary-value.red { color: #fca5a5; }
+        .summary-value.balance-positive { color: #86efac; }
+        .summary-value.balance-negative { color: #fca5a5; }
 
         /* ---- Table ---- */
         .table-dark-custom {
@@ -328,34 +295,18 @@
             border-collapse: collapse;
             margin-top: 4px;
         }
-
         .table-dark-custom th {
-            font-size: 0.75rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border);
-            font-weight: 500;
-            text-align: left;
+            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border);
+            font-weight: 500; text-align: left;
         }
-
         .table-dark-custom td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-            color: var(--text);
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            font-size: 0.9rem; color: var(--text);
         }
-
         .table-dark-custom tr:last-child td { border-bottom: none; }
-
-        .table-dark-custom tbody tr {
-            transition: background 0.15s;
-        }
-
-        .table-dark-custom tbody tr:hover {
-            background: var(--surface2);
-        }
+        .table-dark-custom tbody tr { transition: background 0.15s; }
+        .table-dark-custom tbody tr:hover { background: var(--surface2); }
 
         .category-badge {
             background: var(--accent-dim);
@@ -365,6 +316,10 @@
             border-radius: 20px;
             font-weight: 500;
         }
+        .category-badge.expense-badge {
+            background: var(--red-dim);
+            color: #fca5a5;
+        }
 
         .amount-cell {
             font-family: 'Playfair Display', serif;
@@ -372,48 +327,26 @@
             color: #86efac;
             font-weight: 700;
         }
+        .amount-cell.expense-amount { color: #fca5a5; }
 
         .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--muted);
-            font-size: 0.9rem;
+            text-align: center; padding: 40px;
+            color: var(--muted); font-size: 0.9rem;
         }
-
-        .empty-state .empty-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
-            opacity: 0.4;
-        }
+        .empty-state .empty-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.4; }
 
         /* ---- Chart ---- */
         .chart-wrap {
-            position: relative;
-            height: 260px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative; height: 260px;
+            display: flex; align-items: center; justify-content: center;
         }
 
         /* ---- Responsive ---- */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 24px 16px;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 24px 16px; }
+            .sidebar-toggle { display: block; }
             .page-title { font-size: 1.6rem; }
         }
     </style>
@@ -447,42 +380,22 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-section">
         <div class="sidebar-label">Main</div>
-        <a href="#" class="sidebar-link">
-            <span class="icon">🏠</span> Dashboard
-        </a>
-        <a href="{{ url_for('assets') }}" class="sidebar-link active">
-            <span class="icon">💰</span> Assets
-        </a>
-        <a href="#" class="sidebar-link">
-            <span class="icon">📊</span> Transactions
-        </a>
-        <a href="#" class="sidebar-link">
-            <span class="icon">📈</span> Analysis
-        </a>
+        <a href="#" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+        <a href="{{ url_for('assets') }}" class="sidebar-link active"><span class="icon">💰</span> Assets</a>
+        <a href="#" class="sidebar-link"><span class="icon">📊</span> Transactions</a>
+        <a href="#" class="sidebar-link"><span class="icon">📈</span> Analysis</a>
     </div>
-
     <hr class="sidebar-divider">
-
     <div class="sidebar-section">
         <div class="sidebar-label">Tools</div>
-        <a href="#" class="sidebar-link">
-            <span class="icon">🤖</span> Ask Buddy
-        </a>
+        <a href="#" class="sidebar-link"><span class="icon">🤖</span> Ask Buddy</a>
     </div>
-
     <hr class="sidebar-divider">
-
     <div class="sidebar-section">
         <div class="sidebar-label">Account</div>
-        <a href="{{ url_for('login') }}" class="sidebar-link">
-            <span class="icon">🔑</span> Login
-        </a>
-        <a href="{{ url_for('signup') }}" class="sidebar-link">
-            <span class="icon">✨</span> Sign Up
-        </a>
-        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:#fca5a5;">
-            <span class="icon">🚪</span> Logout
-        </a>
+        <a href="{{ url_for('login') }}" class="sidebar-link"><span class="icon">🔑</span> Login</a>
+        <a href="{{ url_for('signup') }}" class="sidebar-link"><span class="icon">✨</span> Sign Up</a>
+        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:#fca5a5;"><span class="icon">🚪</span> Logout</a>
     </div>
 </div>
 
@@ -492,8 +405,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <p class="page-eyebrow">Finance</p>
-        <h1 class="page-title">Your Assets</h1>
-        <p class="page-sub">Track your income sources and asset distribution</p>
+        <h1 class="page-title">Assets & Expenses</h1>
+        <p class="page-sub">Track your income sources, assets, and expenses</p>
     </div>
 
     <!-- Summary Row -->
@@ -508,22 +421,46 @@
         </div>
         <div class="col-6 col-md-3">
             <div class="summary-card">
-                <div class="summary-label">Sources</div>
+                <div class="summary-label">Asset Sources</div>
                 <div class="summary-value">{{ assets|length }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="summary-card">
+                <div class="summary-label">Total Expenses</div>
+                <div class="summary-value red">
+                    ₨ {{ "%.0f"|format(expenses|sum(attribute='amount')) if expenses else 0 }}
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="summary-card">
+                <div class="summary-label">Net Balance</div>
+                {% set net = (assets|sum(attribute='amount') if assets else 0) - (expenses|sum(attribute='amount') if expenses else 0) %}
+                <div class="summary-value {% if net >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+                    ₨ {{ "%.0f"|format(net) }}
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
+    <!-- ======== ASSETS SECTION ======== -->
+    <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-label">💰 Assets</div>
+        <div class="section-divider-line"></div>
+    </div>
 
+    <div class="row g-4">
         <!-- Add Asset Form -->
         <div class="col-lg-5">
             <div class="card-dark">
                 <div class="card-title">Add New Asset</div>
                 <form method="POST" action="{{ url_for('assets') }}">
+                    <input type="hidden" name="form_type" value="asset">
                     <div class="mb-3">
                         <label class="form-label">Category</label>
-                        <select name="category" class="form-select" required>
+                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this, 'asset-custom-label')">
                             <option value="" disabled selected>Select a category</option>
                             <option value="Salary">💼 Salary</option>
                             <option value="Freelance">💻 Freelance</option>
@@ -533,6 +470,10 @@
                             <option value="Gift">🎁 Gift</option>
                             <option value="Other">📦 Other</option>
                         </select>
+                        <div class="custom-label-wrap" id="asset-custom-label">
+                            <input type="text" name="custom_label" class="form-control"
+                                   placeholder="Enter custom asset name..." maxlength="50">
+                        </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Amount (₨)</label>
@@ -544,10 +485,10 @@
             </div>
         </div>
 
-        <!-- Chart -->
+        <!-- Asset Chart -->
         <div class="col-lg-7">
             <div class="card-dark" style="height: 100%;">
-                <div class="card-title">Distribution</div>
+                <div class="card-title">Asset Distribution</div>
                 {% if assets %}
                 <div class="chart-wrap">
                     <canvas id="assetChart"></canvas>
@@ -592,9 +533,102 @@
                 {% endif %}
             </div>
         </div>
-
     </div>
-</div>
+
+    <!-- ======== EXPENSES SECTION ======== -->
+    <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-label">🔴 Expenses</div>
+        <div class="section-divider-line"></div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Add Expense Form -->
+        <div class="col-lg-5">
+            <div class="card-dark expense-card">
+                <div class="card-title">Add New Expense</div>
+                <form method="POST" action="{{ url_for('assets') }}">
+                    <input type="hidden" name="form_type" value="expense">
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this, 'expense-custom-label')">
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="Food">🍔 Food</option>
+                            <option value="Rent">🏠 Rent</option>
+                            <option value="Transport">🚗 Transport</option>
+                            <option value="Utilities">💡 Utilities</option>
+                            <option value="Healthcare">🏥 Healthcare</option>
+                            <option value="Education">📚 Education</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Other">📦 Other</option>
+                        </select>
+                        <div class="custom-label-wrap" id="expense-custom-label">
+                            <input type="text" name="custom_label" class="form-control"
+                                   placeholder="Enter custom expense name..." maxlength="50">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Amount (₨)</label>
+                        <input type="number" step="0.01" name="amount"
+                               class="form-control" placeholder="e.g. 5000" required min="0">
+                    </div>
+                    <button type="submit" class="btn-add btn-expense w-100">− Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Expense Chart -->
+        <div class="col-lg-7">
+            <div class="card-dark expense-card" style="height: 100%;">
+                <div class="card-title">Expense Distribution</div>
+                {% if expenses %}
+                <div class="chart-wrap">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    Add expenses to see your distribution chart
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="col-12">
+            <div class="card-dark expense-card">
+                <div class="card-title">All Expenses</div>
+                {% if expenses %}
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td style="color: var(--muted); font-size: 0.82rem;">{{ loop.index }}</td>
+                            <td><span class="category-badge expense-badge">{{ expense.category }}</span></td>
+                            <td class="amount-cell expense-amount">− ₨ {{ "%.2f"|format(expense.amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🔴</div>
+                    No expenses yet. Add your first one above!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div><!-- /main-content -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -612,10 +646,24 @@
         document.getElementById('sidebar').classList.toggle('open');
     }
 
-    // Chart
+    // Show/hide custom label input when "Other" is selected
+    function toggleCustomLabel(selectEl, wrapperId) {
+        const wrap = document.getElementById(wrapperId);
+        const input = wrap.querySelector('input');
+        if (selectEl.value === 'Other') {
+            wrap.classList.add('show');
+            input.required = true;
+        } else {
+            wrap.classList.remove('show');
+            input.required = false;
+            input.value = '';
+        }
+    }
+
+    // Asset Chart
     {% if assets %}
-    const ctx = document.getElementById('assetChart').getContext('2d');
-    new Chart(ctx, {
+    const assetCtx = document.getElementById('assetChart').getContext('2d');
+    new Chart(assetCtx, {
         type: 'doughnut',
         data: {
             labels: [{% for asset in assets %}"{{ asset.category }}",{% endfor %}],
@@ -643,15 +691,56 @@
                     labels: {
                         color: '#f0ece4',
                         font: { family: 'DM Sans', size: 12 },
-                        padding: 16,
-                        boxWidth: 12,
-                        borderRadius: 4,
+                        padding: 16, boxWidth: 12, borderRadius: 4,
                     }
                 },
                 tooltip: {
-                    callbacks: {
-                        label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}`
+                    callbacks: { label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}` }
+                }
+            },
+            cutout: '65%',
+        }
+    });
+    {% endif %}
+
+    // Expense Chart
+    {% if expenses %}
+    const expCtx = document.getElementById('expenseChart').getContext('2d');
+    new Chart(expCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for expense in expenses %}"{{ expense.category }}",{% endfor %}],
+            datasets: [{
+                data: [{% for expense in expenses %}{{ expense.amount }},{% endfor %}],
+                backgroundColor: [
+                    'rgba(239,68,68,0.85)',
+                    'rgba(251,146,60,0.85)',
+                    'rgba(250,204,21,0.85)',
+                    'rgba(163,230,53,0.85)',
+                    'rgba(34,211,238,0.85)',
+                    'rgba(129,140,248,0.85)',
+                    'rgba(244,114,182,0.85)',
+                    'rgba(248,113,113,0.70)',
+                    'rgba(253,186,116,0.70)',
+                ],
+                borderColor: '#161616',
+                borderWidth: 3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#f0ece4',
+                        font: { family: 'DM Sans', size: 12 },
+                        padding: 16, boxWidth: 12, borderRadius: 4,
                     }
+                },
+                tooltip: {
+                    callbacks: { label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}` }
                 }
             },
             cutout: '65%',

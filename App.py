@@ -10,37 +10,46 @@ app.config['SECRET_KEY'] = Config.SECRET_KEY
 
 db = SQLAlchemy(app)
 
+
 # ---- Database Models ----
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email    = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-    budgets = db.relationship('Budget', backref='owner', lazy=True)
-    assets = db.relationship('Asset', backref='owner', lazy=True)
+    budgets  = db.relationship('Budget',  backref='owner', lazy=True)
+    assets   = db.relationship('Asset',   backref='owner', lazy=True)
+    expenses = db.relationship('Expense', backref='owner', lazy=True)
 
 
 class Budget(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    id           = db.Column(db.Integer, primary_key=True)
+    name         = db.Column(db.String(100), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id      = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
 class Asset(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id       = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(100), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    amount   = db.Column(db.Float, nullable=False)
+    user_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+
+class Expense(db.Model):
+    id       = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(100), nullable=False)
+    amount   = db.Column(db.Float, nullable=False)
+    user_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
 # ---- Home Route ----
 @app.route('/')
 def home():
     if "user_id" in session:
-        return redirect(url_for('assets'))  # logged in → go straight to assets
-    return render_template("welcome.html")  # not logged in → welcome page
+        return redirect(url_for('assets'))
+    return render_template("welcome.html")
 
 
 # ---- Assets Route ----
@@ -50,66 +59,72 @@ def assets():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        category = request.form.get("category")
-        amount = request.form.get("amount")
+        form_type = request.form.get("form_type")   # 'asset' or 'expense'
+        category  = request.form.get("category")
+        amount    = request.form.get("amount")
+
+        # If user picked "Other", use their custom typed label
+        if category == "Other":
+            category = request.form.get("custom_label", "Other").strip()
 
         if not category or not amount:
             flash("Please fill all fields.", "error")
             return redirect(url_for("assets"))
 
-        new_asset = Asset(
-            category=category,
-            amount=float(amount),
-            user_id=session["user_id"]
-        )
+        if form_type == "expense":
+            db.session.add(Expense(
+                category=category,
+                amount=float(amount),
+                user_id=session["user_id"]
+            ))
+            flash("Expense added successfully!", "success")
+        else:
+            db.session.add(Asset(
+                category=category,
+                amount=float(amount),
+                user_id=session["user_id"]
+            ))
+            flash("Asset added successfully!", "success")
 
-        db.session.add(new_asset)
         db.session.commit()
-
-        flash("Asset added successfully!", "success")
         return redirect(url_for("assets"))
 
-    user_assets = Asset.query.filter_by(user_id=session["user_id"]).all()
-    return render_template("assets.html", assets=user_assets)
+    user_assets   = Asset.query.filter_by(user_id=session["user_id"]).all()
+    user_expenses = Expense.query.filter_by(user_id=session["user_id"]).all()
+    return render_template("assets.html", assets=user_assets, expenses=user_expenses)
 
 
 # ---- Signup Route ----
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username         = request.form.get('username')
+        email            = request.form.get('email')
+        password         = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        terms = request.form.get('terms')
+        terms            = request.form.get('terms')
 
-        # Validate all fields filled
         if not username or not email or not password or not confirm_password:
             flash("All fields are required.", "error")
             return redirect(url_for('signup'))
 
-        # Validate terms accepted
         if not terms:
             flash("You must accept the Terms & Conditions to register.", "error")
             return redirect(url_for('signup'))
 
-        # Validate passwords match
         if password != confirm_password:
             flash("Passwords do not match!", "error")
             return redirect(url_for('signup'))
 
-        # Validate password length
         if len(password) < 8:
             flash("Password must be at least 8 characters long.", "error")
             return redirect(url_for('signup'))
 
-        # Check if email already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash("Email already registered! Please login.", "error")
             return redirect(url_for('signup'))
 
-        # Hash password and save user
         hashed_password = generate_password_hash(password)
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
@@ -125,7 +140,7 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
+        email    = request.form.get("email")
         password = request.form.get("password")
 
         if not email or not password:
@@ -135,10 +150,10 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
+            session["user_id"]  = user.id
             session["username"] = user.username
             flash(f"Welcome back, {user.username}!", "success")
-            return redirect(url_for('assets'))  # login → go straight to assets
+            return redirect(url_for('assets'))
         else:
             flash("Invalid email or password!", "error")
             return redirect(url_for('login'))
