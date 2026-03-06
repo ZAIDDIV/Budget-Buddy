@@ -14,346 +14,170 @@
             --surface2: #1e1e1e;
             --border: #2a2a2a;
             --accent: #c8a96e;
-            --accent-dim: rgba(200, 169, 110, 0.12);
+            --accent-dim: rgba(200,169,110,0.12);
             --red: #ef4444;
-            --red-dim: rgba(239, 68, 68, 0.12);
+            --red-dim: rgba(239,68,68,0.12);
+            --purple: #818cf8;
+            --purple-dim: rgba(129,140,248,0.12);
             --text: #f0ece4;
             --muted: #7a7a7a;
             --sidebar-w: 240px;
         }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background-color:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Navbar */
+        .navbar { background-color:rgba(13,13,13,0.97); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:14px 24px; position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; }
+        .navbar-brand { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--accent); text-decoration:none; letter-spacing:1px; }
+        .navbar-right { display:flex; align-items:center; gap:16px; }
+        .nav-user { font-size:0.85rem; color:var(--muted); }
+        .nav-user span { color:var(--text); font-weight:500; }
+        .btn-logout { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.82rem; padding:6px 14px; border-radius:6px; text-decoration:none; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+        .btn-logout:hover { border-color:#ef4444; color:#fca5a5; }
+        .sidebar-toggle { display:none; background:none; border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:1rem; }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-        }
+        /* Sidebar */
+        .sidebar { position:fixed; top:57px; left:0; width:var(--sidebar-w); height:calc(100vh - 57px); background:var(--surface); border-right:1px solid var(--border); padding:28px 0; z-index:100; overflow-y:auto; transition:transform 0.3s ease; }
+        .sidebar-section { padding:0 16px; margin-bottom:28px; }
+        .sidebar-label { font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:0 8px; margin-bottom:8px; }
+        .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:400; transition:all 0.2s; margin-bottom:2px; }
+        .sidebar-link:hover { background:var(--surface2); color:var(--text); }
+        .sidebar-link.active { background:var(--accent-dim); color:var(--accent); font-weight:500; }
+        .sidebar-link .icon { font-size:1rem; width:20px; text-align:center; }
+        .sidebar-divider { border:none; border-top:1px solid var(--border); margin:16px; }
 
-        /* ---- Navbar ---- */
-        .navbar {
-            background-color: rgba(13,13,13,0.97);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 24px;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        /* Main */
+        .main-content { margin-left:var(--sidebar-w); margin-top:57px; padding:36px 40px; min-height:calc(100vh - 57px); }
 
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            color: var(--accent);
-            text-decoration: none;
-            letter-spacing: 1px;
-        }
+        /* Flash */
+        .flash-container { position:fixed; top:72px; right:20px; z-index:999; max-width:340px; }
+        .flash-msg { padding:12px 18px; border-radius:8px; font-size:0.88rem; margin-bottom:8px; border-left:3px solid; animation:slideIn 0.3s ease; }
+        .flash-success { background:rgba(34,197,94,0.12); border-color:#22c55e; color:#86efac; }
+        .flash-error { background:rgba(239,68,68,0.12); border-color:#ef4444; color:#fca5a5; }
+        @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
 
-        .navbar-right { display: flex; align-items: center; gap: 16px; }
-        .nav-user { font-size: 0.85rem; color: var(--muted); }
-        .nav-user span { color: var(--text); font-weight: 500; }
+        /* Page Header */
+        .page-header { margin-bottom:32px; }
+        .page-eyebrow { font-size:0.75rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+        .page-title { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+        .page-sub { font-size:0.9rem; color:var(--muted); }
 
-        .btn-logout {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 0.82rem;
-            padding: 6px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.2s;
-            font-family: 'DM Sans', sans-serif;
-        }
-        .btn-logout:hover { border-color: #ef4444; color: #fca5a5; }
+        /* Section Divider */
+        .section-divider { display:flex; align-items:center; gap:16px; margin:40px 0 28px; }
+        .section-divider-line { flex:1; height:1px; background:var(--border); }
+        .section-divider-label { font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
 
-        .sidebar-toggle {
-            display: none;
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
+        /* Cards */
+        .card-dark { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:28px; position:relative; }
+        .card-dark::before { content:''; position:absolute; top:-1px; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .card-dark.expense-card::before { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+        .card-dark.loan-card::before { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+        .card-title { font-size:0.82rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
 
-        /* ---- Sidebar ---- */
-        .sidebar {
-            position: fixed;
-            top: 57px; left: 0;
-            width: var(--sidebar-w);
-            height: calc(100vh - 57px);
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 28px 0;
-            z-index: 100;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
+        /* Forms */
+        .form-label { font-size:0.8rem; color:var(--muted); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
+        .form-control, .form-select { background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.93rem; padding:11px 14px; transition:border-color 0.2s,box-shadow 0.2s; }
+        .form-control:focus, .form-select:focus { background:var(--surface2); border-color:var(--accent); color:var(--text); box-shadow:0 0 0 3px rgba(200,169,110,0.1); }
+        .expense-card .form-control:focus, .expense-card .form-select:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(239,68,68,0.1); }
+        .loan-card .form-control:focus, .loan-card .form-select:focus { border-color:var(--purple); box-shadow:0 0 0 3px rgba(129,140,248,0.1); }
+        .form-control::placeholder { color:#3a3a3a; }
+        .form-select option { background:var(--surface2); }
+        .custom-label-wrap { display:none; margin-top:10px; animation:fadeIn 0.2s ease; }
+        .custom-label-wrap.show { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
 
-        .sidebar-section { padding: 0 16px; margin-bottom: 28px; }
+        /* Buttons */
+        .btn-add { background:var(--accent); color:#0d0d0d; font-weight:700; font-size:0.9rem; padding:11px 28px; border-radius:8px; border:none; cursor:pointer; transition:opacity 0.2s,transform 0.1s; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+        .btn-add:hover { opacity:0.88; transform:translateY(-1px); }
+        .btn-add.btn-expense { background:var(--red); color:#fff; }
+        .btn-add.btn-loan { background:var(--purple); color:#fff; }
 
-        .sidebar-label {
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            padding: 0 8px;
-            margin-bottom: 8px;
-        }
+        .btn-delete { background:transparent; border:1px solid transparent; color:var(--muted); font-size:0.95rem; padding:5px 8px; border-radius:6px; cursor:pointer; transition:all 0.2s; line-height:1; }
+        .btn-delete:hover { background:var(--red-dim); border-color:var(--red); color:#fca5a5; }
+        .btn-edit { background:transparent; border:1px solid transparent; color:var(--muted); font-size:0.95rem; padding:5px 8px; border-radius:6px; cursor:pointer; transition:all 0.2s; line-height:1; }
+        .btn-edit:hover { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
 
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 400;
-            transition: all 0.2s;
-            margin-bottom: 2px;
-        }
-        .sidebar-link:hover { background: var(--surface2); color: var(--text); }
-        .sidebar-link.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
-        .sidebar-link .icon { font-size: 1rem; width: 20px; text-align: center; }
-        .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 16px; }
+        .action-btns { display:flex; gap:4px; align-items:center; }
 
-        /* ---- Main Content ---- */
-        .main-content {
-            margin-left: var(--sidebar-w);
-            margin-top: 57px;
-            padding: 36px 40px;
-            min-height: calc(100vh - 57px);
-        }
+        /* Summary Cards */
+        .summary-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px 22px; }
+        .summary-label { font-size:0.75rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .summary-value { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:var(--text); }
+        .summary-value.gold { color:var(--accent); }
+        .summary-value.green { color:#86efac; }
+        .summary-value.red { color:#fca5a5; }
+        .summary-value.purple { color:#c7d2fe; }
+        .summary-value.balance-positive { color:#86efac; }
+        .summary-value.balance-negative { color:#fca5a5; }
 
-        /* ---- Flash ---- */
-        .flash-container {
-            position: fixed; top: 72px; right: 20px;
-            z-index: 999; max-width: 340px;
-        }
-        .flash-msg {
-            padding: 12px 18px; border-radius: 8px;
-            font-size: 0.88rem; margin-bottom: 8px;
-            border-left: 3px solid; animation: slideIn 0.3s ease;
-        }
-        .flash-success { background: rgba(34,197,94,0.12); border-color: #22c55e; color: #86efac; }
-        .flash-error   { background: rgba(239,68,68,0.12);  border-color: #ef4444; color: #fca5a5; }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
+        /* Table */
+        .table-dark-custom { width:100%; border-collapse:collapse; margin-top:4px; }
+        .table-dark-custom th { font-size:0.75rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:10px 16px; border-bottom:1px solid var(--border); font-weight:500; text-align:left; }
+        .table-dark-custom td { padding:12px 16px; border-bottom:1px solid var(--border); font-size:0.9rem; color:var(--text); vertical-align:middle; }
+        .table-dark-custom tr:last-child td { border-bottom:none; }
+        .table-dark-custom tbody tr { transition:background 0.15s; }
+        .table-dark-custom tbody tr:hover { background:var(--surface2); }
+        .category-badge { background:var(--accent-dim); color:var(--accent); font-size:0.78rem; padding:3px 10px; border-radius:20px; font-weight:500; }
+        .category-badge.expense-badge { background:var(--red-dim); color:#fca5a5; }
+        .amount-cell { font-family:'Playfair Display',serif; font-size:1rem; color:#86efac; font-weight:700; }
+        .amount-cell.expense-amount { color:#fca5a5; }
+        .date-cell { font-size:0.82rem; color:var(--muted); }
 
-        /* ---- Page Header ---- */
-        .page-header { margin-bottom: 32px; }
-        .page-eyebrow {
-            font-size: 0.75rem; letter-spacing: 2.5px;
-            text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
-        }
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 6px;
-        }
-        .page-sub { font-size: 0.9rem; color: var(--muted); }
+        /* Loan specific */
+        .loan-type-toggle { display:flex; gap:10px; }
+        .loan-type-toggle input[type="radio"] { display:none; }
+        .loan-type-btn { flex:1; text-align:center; padding:10px; border-radius:8px; border:1px solid var(--border); color:var(--muted); cursor:pointer; font-size:0.88rem; transition:all 0.2s; background:var(--surface2); }
+        .loan-type-toggle input[type="radio"]:checked + .loan-type-btn { border-color:var(--purple); color:#c7d2fe; background:var(--purple-dim); }
+        .loan-stat-card { border-radius:10px; padding:18px 20px; border:1px solid var(--border); }
+        .loan-stat-card.gave { background:rgba(134,239,172,0.06); border-color:rgba(134,239,172,0.2); }
+        .loan-stat-card.took { background:rgba(252,165,165,0.06); border-color:rgba(252,165,165,0.2); }
+        .loan-stat-label { font-size:0.78rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .loan-stat-value { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; }
+        .loan-stat-card.gave .loan-stat-value { color:#86efac; }
+        .loan-stat-card.took .loan-stat-value { color:#fca5a5; }
+        .loan-stat-sub { font-size:0.78rem; color:var(--muted); margin-top:4px; }
+        .loan-type-badge { font-size:0.78rem; padding:3px 10px; border-radius:20px; font-weight:500; }
+        .gave-badge { background:rgba(134,239,172,0.12); color:#86efac; }
+        .took-badge { background:rgba(252,165,165,0.12); color:#fca5a5; }
+        .status-btn { background:transparent; border:1px solid var(--border); border-radius:20px; font-size:0.78rem; padding:4px 12px; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+        .status-paid { border-color:rgba(134,239,172,0.4); color:#86efac; background:rgba(134,239,172,0.08); }
+        .status-unpaid { border-color:rgba(251,191,36,0.4); color:#fde68a; background:rgba(251,191,36,0.08); }
+        .status-btn:hover { opacity:0.75; }
 
-        /* ---- Section Divider ---- */
-        .section-divider {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 40px 0 28px;
-        }
-        .section-divider-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-        .section-divider-label {
-            font-size: 0.72rem;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            white-space: nowrap;
-        }
+        /* Chart */
+        .chart-wrap { position:relative; height:260px; display:flex; align-items:center; justify-content:center; }
+        .empty-state { text-align:center; padding:40px; color:var(--muted); font-size:0.9rem; }
+        .empty-state .empty-icon { font-size:2rem; margin-bottom:12px; opacity:0.4; }
 
-        /* ---- Cards ---- */
-        .card-dark {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 28px;
-            position: relative;
-        }
-        .card-dark::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: 24px; right: 24px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        }
-        .card-dark.expense-card::before {
-            background: linear-gradient(90deg, transparent, var(--red), transparent);
-        }
-        .card-title {
-            font-size: 0.82rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 20px;
-        }
+        /* ---- Edit Modal ---- */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:32px; width:100%; max-width:440px; position:relative; animation:modalIn 0.25s ease; }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+        .modal-box::before { content:''; position:absolute; top:-1px; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .modal-box.modal-expense::before { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+        .modal-box.modal-loan::before { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+        .modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--text); margin-bottom:20px; }
+        .modal-close { position:absolute; top:16px; right:16px; background:transparent; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; transition:color 0.2s; }
+        .modal-close:hover { color:var(--text); }
+        .btn-save { background:var(--accent); color:#0d0d0d; font-weight:700; font-size:0.9rem; padding:11px 28px; border-radius:8px; border:none; cursor:pointer; transition:opacity 0.2s; font-family:'DM Sans',sans-serif; width:100%; }
+        .btn-save:hover { opacity:0.88; }
+        .btn-save.btn-save-expense { background:var(--red); color:#fff; }
+        .btn-save.btn-save-loan { background:var(--purple); color:#fff; }
 
-        /* ---- Form ---- */
-        .form-label {
-            font-size: 0.8rem; color: var(--muted);
-            letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;
-        }
-        .form-control, .form-select {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.93rem;
-            padding: 11px 14px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-control:focus, .form-select:focus {
-            background: var(--surface2);
-            border-color: var(--accent);
-            color: var(--text);
-            box-shadow: 0 0 0 3px rgba(200,169,110,0.1);
-        }
-        .expense-card .form-control:focus,
-        .expense-card .form-select:focus {
-            border-color: var(--red);
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-        }
-        .form-control::placeholder { color: #3a3a3a; }
-        .form-select option { background: var(--surface2); }
-
-        /* Custom label input (hidden by default) */
-        .custom-label-wrap {
-            display: none;
-            margin-top: 10px;
-            animation: fadeIn 0.2s ease;
-        }
-        .custom-label-wrap.show { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .btn-add {
-            background: var(--accent);
-            color: #0d0d0d;
-            font-weight: 700;
-            font-size: 0.9rem;
-            padding: 11px 28px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            font-family: 'DM Sans', sans-serif;
-            white-space: nowrap;
-        }
-        .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
-
-        .btn-add.btn-expense {
-            background: var(--red);
-            color: #fff;
-        }
-
-        /* ---- Summary Cards ---- */
-        .summary-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px 22px;
-        }
-        .summary-label {
-            font-size: 0.75rem; color: var(--muted);
-            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
-        }
-        .summary-value {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.6rem; font-weight: 700; color: var(--text);
-        }
-        .summary-value.gold { color: var(--accent); }
-        .summary-value.green { color: #86efac; }
-        .summary-value.red { color: #fca5a5; }
-        .summary-value.balance-positive { color: #86efac; }
-        .summary-value.balance-negative { color: #fca5a5; }
-
-        /* ---- Table ---- */
-        .table-dark-custom {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 4px;
-        }
-        .table-dark-custom th {
-            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--border);
-            font-weight: 500; text-align: left;
-        }
-        .table-dark-custom td {
-            padding: 14px 16px; border-bottom: 1px solid var(--border);
-            font-size: 0.9rem; color: var(--text);
-        }
-        .table-dark-custom tr:last-child td { border-bottom: none; }
-        .table-dark-custom tbody tr { transition: background 0.15s; }
-        .table-dark-custom tbody tr:hover { background: var(--surface2); }
-
-        .category-badge {
-            background: var(--accent-dim);
-            color: var(--accent);
-            font-size: 0.78rem;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-        .category-badge.expense-badge {
-            background: var(--red-dim);
-            color: #fca5a5;
-        }
-
-        .amount-cell {
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            color: #86efac;
-            font-weight: 700;
-        }
-        .amount-cell.expense-amount { color: #fca5a5; }
-
-        .empty-state {
-            text-align: center; padding: 40px;
-            color: var(--muted); font-size: 0.9rem;
-        }
-        .empty-state .empty-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.4; }
-
-        /* ---- Chart ---- */
-        .chart-wrap {
-            position: relative; height: 260px;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* ---- Responsive ---- */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 24px 16px; }
-            .sidebar-toggle { display: block; }
-            .page-title { font-size: 1.6rem; }
+        /* Responsive */
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:24px 16px; }
+            .sidebar-toggle { display:block; }
+            .page-title { font-size:1.6rem; }
+            .modal-box { margin:16px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <div class="flash-container">
@@ -364,9 +188,8 @@
   {% endif %}
 {% endwith %}
 
-<!-- Navbar -->
 <nav class="navbar">
-    <div style="display:flex; align-items:center; gap:14px;">
+    <div style="display:flex;align-items:center;gap:14px;">
         <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
         <a class="navbar-brand" href="{{ url_for('home') }}">Budget Buddy</a>
     </div>
@@ -376,7 +199,6 @@
     </div>
 </nav>
 
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-section">
         <div class="sidebar-label">Main</div>
@@ -399,60 +221,139 @@
     </div>
 </div>
 
-<!-- Main Content -->
+<!-- ===== EDIT ASSET MODAL ===== -->
+<div class="modal-overlay" id="editAssetModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('editAssetModal')">✕</button>
+        <div class="modal-title">✏️ Edit Asset</div>
+        <form method="POST" id="editAssetForm">
+            <input type="hidden" name="form_type" value="edit_asset">
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" id="editAssetCategory" class="form-control" required maxlength="100">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Amount (₨)</label>
+                <input type="number" step="0.01" name="amount" id="editAssetAmount" class="form-control" required min="0">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" id="editAssetDate" class="form-control">
+            </div>
+            <button type="submit" class="btn-save">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== EDIT EXPENSE MODAL ===== -->
+<div class="modal-overlay" id="editExpenseModal">
+    <div class="modal-box modal-expense">
+        <button class="modal-close" onclick="closeModal('editExpenseModal')">✕</button>
+        <div class="modal-title">✏️ Edit Expense</div>
+        <form method="POST" id="editExpenseForm">
+            <input type="hidden" name="form_type" value="edit_expense">
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" id="editExpenseCategory" class="form-control" required maxlength="100">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Amount (₨)</label>
+                <input type="number" step="0.01" name="amount" id="editExpenseAmount" class="form-control" required min="0">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" id="editExpenseDate" class="form-control">
+            </div>
+            <button type="submit" class="btn-save btn-save-expense">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== EDIT LOAN MODAL ===== -->
+<div class="modal-overlay" id="editLoanModal">
+    <div class="modal-box modal-loan">
+        <button class="modal-close" onclick="closeModal('editLoanModal')">✕</button>
+        <div class="modal-title">✏️ Edit Loan</div>
+        <form method="POST" id="editLoanForm">
+            <div class="mb-3">
+                <label class="form-label">Person Name</label>
+                <input type="text" name="person" id="editLoanPerson" class="form-control" required maxlength="100">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Amount (₨)</label>
+                <input type="number" step="0.01" name="amount" id="editLoanAmount" class="form-control" required min="0">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Due Date</label>
+                <input type="date" name="due_date" id="editLoanDueDate" class="form-control">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Description</label>
+                <input type="text" name="description" id="editLoanDescription" class="form-control" maxlength="200">
+            </div>
+            <button type="submit" class="btn-save btn-save-loan">Save Changes</button>
+        </form>
+    </div>
+</div>
+
 <div class="main-content">
 
-    <!-- Page Header -->
     <div class="page-header">
         <p class="page-eyebrow">Finance</p>
-        <h1 class="page-title">Assets & Expenses</h1>
-        <p class="page-sub">Track your income sources, assets, and expenses</p>
+        <h1 class="page-title">Assets, Expenses & Loans</h1>
+        <p class="page-sub">Track your income, expenses, and loans all in one place</p>
     </div>
 
     <!-- Summary Row -->
+    {% set gave_unpaid_total = loans | selectattr('loan_type','equalto','gave') | selectattr('status','equalto','unpaid') | sum(attribute='amount') if loans else 0 %}
+    {% set took_unpaid_total = loans | selectattr('loan_type','equalto','took') | selectattr('status','equalto','unpaid') | sum(attribute='amount') if loans else 0 %}
+    {% set net = (assets|sum(attribute='amount') if assets else 0) - (expenses|sum(attribute='amount') if expenses else 0) %}
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-2">
             <div class="summary-card">
                 <div class="summary-label">Total Assets</div>
-                <div class="summary-value gold">
-                    ₨ {{ "%.0f"|format(assets|sum(attribute='amount')) if assets else 0 }}
-                </div>
+                <div class="summary-value gold">₨ {{ "%.0f"|format(assets|sum(attribute='amount')) if assets else 0 }}</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="summary-card">
-                <div class="summary-label">Asset Sources</div>
-                <div class="summary-value">{{ assets|length }}</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-2">
             <div class="summary-card">
                 <div class="summary-label">Total Expenses</div>
-                <div class="summary-value red">
-                    ₨ {{ "%.0f"|format(expenses|sum(attribute='amount')) if expenses else 0 }}
-                </div>
+                <div class="summary-value red">₨ {{ "%.0f"|format(expenses|sum(attribute='amount')) if expenses else 0 }}</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-2">
             <div class="summary-card">
                 <div class="summary-label">Net Balance</div>
-                {% set net = (assets|sum(attribute='amount') if assets else 0) - (expenses|sum(attribute='amount') if expenses else 0) %}
-                <div class="summary-value {% if net >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
-                    ₨ {{ "%.0f"|format(net) }}
-                </div>
+                <div class="summary-value {% if net >= 0 %}balance-positive{% else %}balance-negative{% endif %}">₨ {{ "%.0f"|format(net) }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="summary-card">
+                <div class="summary-label">💸 I'm Owed</div>
+                <div class="summary-value green">₨ {{ "%.0f"|format(gave_unpaid_total) }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="summary-card">
+                <div class="summary-label">🤲 I Owe</div>
+                <div class="summary-value red">₨ {{ "%.0f"|format(took_unpaid_total) }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="summary-card">
+                <div class="summary-label">Total Loans</div>
+                <div class="summary-value purple">{{ loans|length }}</div>
             </div>
         </div>
     </div>
 
-    <!-- ======== ASSETS SECTION ======== -->
+    <!-- ======== ASSETS ======== -->
     <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-label">💰 Assets</div>
         <div class="section-divider-line"></div>
     </div>
-
     <div class="row g-4">
-        <!-- Add Asset Form -->
         <div class="col-lg-5">
             <div class="card-dark">
                 <div class="card-title">Add New Asset</div>
@@ -460,7 +361,7 @@
                     <input type="hidden" name="form_type" value="asset">
                     <div class="mb-3">
                         <label class="form-label">Category</label>
-                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this, 'asset-custom-label')">
+                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this,'asset-custom-label')">
                             <option value="" disabled selected>Select a category</option>
                             <option value="Salary">💼 Salary</option>
                             <option value="Freelance">💻 Freelance</option>
@@ -471,79 +372,71 @@
                             <option value="Other">📦 Other</option>
                         </select>
                         <div class="custom-label-wrap" id="asset-custom-label">
-                            <input type="text" name="custom_label" class="form-control"
-                                   placeholder="Enter custom asset name..." maxlength="50">
+                            <input type="text" name="custom_label" class="form-control" placeholder="Enter custom asset name..." maxlength="50">
                         </div>
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label">Amount (₨)</label>
-                        <input type="number" step="0.01" name="amount"
-                               class="form-control" placeholder="e.g. 50000" required min="0">
+                        <input type="number" step="0.01" name="amount" class="form-control" placeholder="e.g. 50000" required min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control">
                     </div>
                     <button type="submit" class="btn-add w-100">+ Add Asset</button>
                 </form>
             </div>
         </div>
-
-        <!-- Asset Chart -->
         <div class="col-lg-7">
-            <div class="card-dark" style="height: 100%;">
+            <div class="card-dark" style="height:100%;">
                 <div class="card-title">Asset Distribution</div>
                 {% if assets %}
-                <div class="chart-wrap">
-                    <canvas id="assetChart"></canvas>
-                </div>
+                <div class="chart-wrap"><canvas id="assetChart"></canvas></div>
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">📊</div>
-                    Add assets to see your distribution chart
-                </div>
+                <div class="empty-state"><div class="empty-icon">📊</div>Add assets to see your distribution chart</div>
                 {% endif %}
             </div>
         </div>
-
-        <!-- Assets Table -->
         <div class="col-12">
             <div class="card-dark">
                 <div class="card-title">All Assets</div>
                 {% if assets %}
                 <table class="table-dark-custom">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>#</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
                     <tbody>
                         {% for asset in assets %}
                         <tr>
-                            <td style="color: var(--muted); font-size: 0.82rem;">{{ loop.index }}</td>
+                            <td style="color:var(--muted);font-size:0.82rem;">{{ loop.index }}</td>
                             <td><span class="category-badge">{{ asset.category }}</span></td>
                             <td class="amount-cell">₨ {{ "%.2f"|format(asset.amount) }}</td>
+                            <td class="date-cell">{{ asset.date if asset.date else '—' }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button type="button" class="btn-edit"
+                                        onclick="openEditAsset({{ asset.id }}, '{{ asset.category }}', {{ asset.amount }}, '{{ asset.date if asset.date else '' }}')">✏️</button>
+                                    <form method="POST" action="{{ url_for('delete_asset', asset_id=asset.id) }}">
+                                        <button type="submit" class="btn-delete">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">💰</div>
-                    No assets yet. Add your first one above!
-                </div>
+                <div class="empty-state"><div class="empty-icon">💰</div>No assets yet. Add your first one above!</div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- ======== EXPENSES SECTION ======== -->
+    <!-- ======== EXPENSES ======== -->
     <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-label">🔴 Expenses</div>
         <div class="section-divider-line"></div>
     </div>
-
     <div class="row g-4">
-        <!-- Add Expense Form -->
         <div class="col-lg-5">
             <div class="card-dark expense-card">
                 <div class="card-title">Add New Expense</div>
@@ -551,7 +444,7 @@
                     <input type="hidden" name="form_type" value="expense">
                     <div class="mb-3">
                         <label class="form-label">Category</label>
-                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this, 'expense-custom-label')">
+                        <select name="category" class="form-select" required onchange="toggleCustomLabel(this,'expense-custom-label')">
                             <option value="" disabled selected>Select a category</option>
                             <option value="Food">🍔 Food</option>
                             <option value="Rent">🏠 Rent</option>
@@ -564,79 +457,71 @@
                             <option value="Other">📦 Other</option>
                         </select>
                         <div class="custom-label-wrap" id="expense-custom-label">
-                            <input type="text" name="custom_label" class="form-control"
-                                   placeholder="Enter custom expense name..." maxlength="50">
+                            <input type="text" name="custom_label" class="form-control" placeholder="Enter custom expense name..." maxlength="50">
                         </div>
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label">Amount (₨)</label>
-                        <input type="number" step="0.01" name="amount"
-                               class="form-control" placeholder="e.g. 5000" required min="0">
+                        <input type="number" step="0.01" name="amount" class="form-control" placeholder="e.g. 5000" required min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control">
                     </div>
                     <button type="submit" class="btn-add btn-expense w-100">− Add Expense</button>
                 </form>
             </div>
         </div>
-
-        <!-- Expense Chart -->
         <div class="col-lg-7">
-            <div class="card-dark expense-card" style="height: 100%;">
+            <div class="card-dark expense-card" style="height:100%;">
                 <div class="card-title">Expense Distribution</div>
                 {% if expenses %}
-                <div class="chart-wrap">
-                    <canvas id="expenseChart"></canvas>
-                </div>
+                <div class="chart-wrap"><canvas id="expenseChart"></canvas></div>
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">📊</div>
-                    Add expenses to see your distribution chart
-                </div>
+                <div class="empty-state"><div class="empty-icon">📊</div>Add expenses to see your distribution chart</div>
                 {% endif %}
             </div>
         </div>
-
-        <!-- Expenses Table -->
         <div class="col-12">
             <div class="card-dark expense-card">
                 <div class="card-title">All Expenses</div>
                 {% if expenses %}
                 <table class="table-dark-custom">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>#</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
                     <tbody>
                         {% for expense in expenses %}
                         <tr>
-                            <td style="color: var(--muted); font-size: 0.82rem;">{{ loop.index }}</td>
+                            <td style="color:var(--muted);font-size:0.82rem;">{{ loop.index }}</td>
                             <td><span class="category-badge expense-badge">{{ expense.category }}</span></td>
                             <td class="amount-cell expense-amount">− ₨ {{ "%.2f"|format(expense.amount) }}</td>
+                            <td class="date-cell">{{ expense.date if expense.date else '—' }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button type="button" class="btn-edit"
+                                        onclick="openEditExpense({{ expense.id }}, '{{ expense.category }}', {{ expense.amount }}, '{{ expense.date if expense.date else '' }}')">✏️</button>
+                                    <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}">
+                                        <button type="submit" class="btn-delete">🗑️</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">🔴</div>
-                    No expenses yet. Add your first one above!
-                </div>
+                <div class="empty-state"><div class="empty-icon">🔴</div>No expenses yet. Add your first one above!</div>
                 {% endif %}
             </div>
         </div>
     </div>
- 
-    <!-- ======== LOANS SECTION ======== -->
+
+    <!-- ======== LOANS ======== -->
     <div class="section-divider">
         <div class="section-divider-line"></div>
         <div class="section-divider-label">🤝 Loans</div>
         <div class="section-divider-line"></div>
     </div>
-
     <div class="row g-4">
-        <!-- Add Loan Form -->
         <div class="col-lg-5">
             <div class="card-dark loan-card">
                 <div class="card-title">Add New Loan</div>
@@ -670,57 +555,48 @@
                 </form>
             </div>
         </div>
-
-        <!-- Loan Summary -->
         <div class="col-lg-7">
             <div class="card-dark loan-card" style="height:100%;">
+                <div class="card-title">Loan Distribution</div>
+                {% if loans %}
+                <div class="chart-wrap"><canvas id="loanChart"></canvas></div>
+                {% else %}
+                <div class="empty-state"><div class="empty-icon">📊</div>Add loans to see your distribution chart</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card-dark loan-card">
                 <div class="card-title">Loan Overview</div>
-                {% set gave_loans = loans | selectattr('loan_type', 'equalto', 'gave') | list %}
-                {% set took_loans = loans | selectattr('loan_type', 'equalto', 'took') | list %}
-                {% set gave_unpaid = gave_loans | selectattr('status', 'equalto', 'unpaid') | list %}
-                {% set took_unpaid = took_loans | selectattr('status', 'equalto', 'unpaid') | list %}
+                {% set gave_loans = loans | selectattr('loan_type','equalto','gave') | list %}
+                {% set took_loans = loans | selectattr('loan_type','equalto','took') | list %}
+                {% set gave_unpaid = gave_loans | selectattr('status','equalto','unpaid') | list %}
+                {% set took_unpaid = took_loans | selectattr('status','equalto','unpaid') | list %}
                 <div class="row g-3">
-                    <div class="col-6">
+                    <div class="col-6 col-md-3">
                         <div class="loan-stat-card gave">
                             <div class="loan-stat-label">💸 I'm Owed</div>
-                            <div class="loan-stat-value">₨ {{ "%.0f"|format(gave_unpaid | sum(attribute='amount')) if gave_unpaid else 0 }}</div>
+                            <div class="loan-stat-value">₨ {{ "%.0f"|format(gave_unpaid|sum(attribute='amount')) if gave_unpaid else 0 }}</div>
                             <div class="loan-stat-sub">{{ gave_unpaid|length }} unpaid of {{ gave_loans|length }} total</div>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-6 col-md-3">
                         <div class="loan-stat-card took">
                             <div class="loan-stat-label">🤲 I Owe</div>
-                            <div class="loan-stat-value">₨ {{ "%.0f"|format(took_unpaid | sum(attribute='amount')) if took_unpaid else 0 }}</div>
+                            <div class="loan-stat-value">₨ {{ "%.0f"|format(took_unpaid|sum(attribute='amount')) if took_unpaid else 0 }}</div>
                             <div class="loan-stat-sub">{{ took_unpaid|length }} unpaid of {{ took_loans|length }} total</div>
                         </div>
                     </div>
                 </div>
-                {% if not loans %}
-                <div class="empty-state" style="margin-top:20px;">
-                    <div class="empty-icon">🤝</div>
-                    No loans yet. Add your first one!
-                </div>
-                {% endif %}
             </div>
         </div>
-
-        <!-- Loans Table -->
         <div class="col-12">
             <div class="card-dark loan-card">
                 <div class="card-title">All Loans</div>
                 {% if loans %}
                 <table class="table-dark-custom">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Type</th>
-                            <th>Person</th>
-                            <th>Amount</th>
-                            <th>Due Date</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
+                        <tr><th>#</th><th>Type</th><th>Person</th><th>Amount</th><th>Due Date</th><th>Description</th><th>Status</th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for loan in loans %}
@@ -734,10 +610,10 @@
                                 {% endif %}
                             </td>
                             <td style="font-weight:500;">{{ loan.person }}</td>
-                            <td class="amount-cell" style="color: {% if loan.loan_type == 'gave' %}#86efac{% else %}#fca5a5{% endif %};">
+                            <td class="amount-cell" style="color:{% if loan.loan_type == 'gave' %}#86efac{% else %}#fca5a5{% endif %};">
                                 ₨ {{ "%.2f"|format(loan.amount) }}
                             </td>
-                            <td style="color:var(--muted);font-size:0.85rem;">{{ loan.due_date if loan.due_date else '—' }}</td>
+                            <td class="date-cell">{{ loan.due_date if loan.due_date else '—' }}</td>
                             <td style="color:var(--muted);font-size:0.85rem;">{{ loan.description if loan.description else '—' }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('toggle_loan', loan_id=loan.id) }}">
@@ -747,143 +623,118 @@
                                 </form>
                             </td>
                             <td>
-                                <form method="POST" action="{{ url_for('delete_loan', loan_id=loan.id) }}">
-                                    <button type="submit" class="btn-delete" title="Delete">🗑️</button>
-                                </form>
+                                <div class="action-btns">
+                                    <button type="button" class="btn-edit"
+                                        onclick="openEditLoan({{ loan.id }}, '{{ loan.person }}', {{ loan.amount }}, '{{ loan.due_date if loan.due_date else '' }}', '{{ loan.description if loan.description else '' }}')">✏️</button>
+                                    <form method="POST" action="{{ url_for('delete_loan', loan_id=loan.id) }}">
+                                        <button type="submit" class="btn-delete">🗑️</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="empty-state">
-                    <div class="empty-icon">🤝</div>
-                    No loans yet. Add your first one above!
-                </div>
+                <div class="empty-state"><div class="empty-icon">🤝</div>No loans yet. Add your first one above!</div>
                 {% endif %}
             </div>
         </div>
-    </div> 
+    </div>
 
-    
 </div><!-- /main-content -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Flash auto-dismiss
+    // Flash dismiss
     setTimeout(() => {
         document.querySelectorAll('.flash-msg').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transition = 'opacity 0.5s';
-            setTimeout(() => el.remove(), 500);
+            el.style.opacity='0'; el.style.transition='opacity 0.5s';
+            setTimeout(()=>el.remove(),500);
         });
     }, 4000);
 
-    // Sidebar toggle for mobile
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('open');
-    }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-    // Show/hide custom label input when "Other" is selected
     function toggleCustomLabel(selectEl, wrapperId) {
         const wrap = document.getElementById(wrapperId);
         const input = wrap.querySelector('input');
-        if (selectEl.value === 'Other') {
-            wrap.classList.add('show');
-            input.required = true;
-        } else {
-            wrap.classList.remove('show');
-            input.required = false;
-            input.value = '';
-        }
+        if (selectEl.value === 'Other') { wrap.classList.add('show'); input.required=true; }
+        else { wrap.classList.remove('show'); input.required=false; input.value=''; }
     }
 
-    // Asset Chart
-    {% if assets %}
-    const assetCtx = document.getElementById('assetChart').getContext('2d');
-    new Chart(assetCtx, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for asset in assets %}"{{ asset.category }}",{% endfor %}],
-            datasets: [{
-                data: [{% for asset in assets %}{{ asset.amount }},{% endfor %}],
-                backgroundColor: [
-                    'rgba(200,169,110,0.85)',
-                    'rgba(134,239,172,0.85)',
-                    'rgba(125,211,252,0.85)',
-                    'rgba(192,132,252,0.85)',
-                    'rgba(251,191,36,0.85)',
-                    'rgba(248,113,113,0.85)',
-                    'rgba(94,234,212,0.85)',
-                ],
-                borderColor: '#161616',
-                borderWidth: 3,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#f0ece4',
-                        font: { family: 'DM Sans', size: 12 },
-                        padding: 16, boxWidth: 12, borderRadius: 4,
-                    }
-                },
-                tooltip: {
-                    callbacks: { label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}` }
-                }
-            },
-            cutout: '65%',
-        }
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => { if(e.target === overlay) overlay.classList.remove('open'); });
     });
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Open Edit Asset Modal
+    function openEditAsset(id, category, amount, date) {
+        document.getElementById('editAssetCategory').value = category;
+        document.getElementById('editAssetAmount').value = amount;
+        document.getElementById('editAssetDate').value = date;
+        document.getElementById('editAssetForm').action = `/edit_asset/${id}`;
+        document.getElementById('editAssetModal').classList.add('open');
+    }
+
+    // Open Edit Expense Modal
+    function openEditExpense(id, category, amount, date) {
+        document.getElementById('editExpenseCategory').value = category;
+        document.getElementById('editExpenseAmount').value = amount;
+        document.getElementById('editExpenseDate').value = date;
+        document.getElementById('editExpenseForm').action = `/edit_expense/${id}`;
+        document.getElementById('editExpenseModal').classList.add('open');
+    }
+
+    // Open Edit Loan Modal
+    function openEditLoan(id, person, amount, due_date, description) {
+        document.getElementById('editLoanPerson').value = person;
+        document.getElementById('editLoanAmount').value = amount;
+        document.getElementById('editLoanDueDate').value = due_date;
+        document.getElementById('editLoanDescription').value = description;
+        document.getElementById('editLoanForm').action = `/edit_loan/${id}`;
+        document.getElementById('editLoanModal').classList.add('open');
+    }
+
+    // Charts
+    const makeChart = (id, labels, data, colors) => {
+        new Chart(document.getElementById(id).getContext('2d'), {
+            type: 'doughnut',
+            data: { labels, datasets: [{ data, backgroundColor: colors, borderColor:'#161616', borderWidth:3 }] },
+            options: {
+                responsive:true, maintainAspectRatio:false, cutout:'65%',
+                plugins: {
+                    legend: { position:'right', labels:{ color:'#f0ece4', font:{family:'DM Sans',size:12}, padding:16, boxWidth:12, borderRadius:4 } },
+                    tooltip: { callbacks:{ label:(ctx)=>` ₨ ${ctx.parsed.toLocaleString()}` } }
+                }
+            }
+        });
+    };
+
+    {% if assets %}
+    makeChart('assetChart',
+        [{% for a in assets %}"{{ a.category }}",{% endfor %}],
+        [{% for a in assets %}{{ a.amount }},{% endfor %}],
+        ['rgba(200,169,110,0.85)','rgba(134,239,172,0.85)','rgba(125,211,252,0.85)','rgba(192,132,252,0.85)','rgba(251,191,36,0.85)','rgba(248,113,113,0.85)','rgba(94,234,212,0.85)']
+    );
     {% endif %}
 
-    // Expense Chart
     {% if expenses %}
-    const expCtx = document.getElementById('expenseChart').getContext('2d');
-    new Chart(expCtx, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for expense in expenses %}"{{ expense.category }}",{% endfor %}],
-            datasets: [{
-                data: [{% for expense in expenses %}{{ expense.amount }},{% endfor %}],
-                backgroundColor: [
-                    'rgba(239,68,68,0.85)',
-                    'rgba(251,146,60,0.85)',
-                    'rgba(250,204,21,0.85)',
-                    'rgba(163,230,53,0.85)',
-                    'rgba(34,211,238,0.85)',
-                    'rgba(129,140,248,0.85)',
-                    'rgba(244,114,182,0.85)',
-                    'rgba(248,113,113,0.70)',
-                    'rgba(253,186,116,0.70)',
-                ],
-                borderColor: '#161616',
-                borderWidth: 3,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#f0ece4',
-                        font: { family: 'DM Sans', size: 12 },
-                        padding: 16, boxWidth: 12, borderRadius: 4,
-                    }
-                },
-                tooltip: {
-                    callbacks: { label: (ctx) => ` ₨ ${ctx.parsed.toLocaleString()}` }
-                }
-            },
-            cutout: '65%',
-        }
-    });
+    makeChart('expenseChart',
+        [{% for e in expenses %}"{{ e.category }}",{% endfor %}],
+        [{% for e in expenses %}{{ e.amount }},{% endfor %}],
+        ['rgba(239,68,68,0.85)','rgba(251,146,60,0.85)','rgba(250,204,21,0.85)','rgba(163,230,53,0.85)','rgba(34,211,238,0.85)','rgba(129,140,248,0.85)','rgba(244,114,182,0.85)','rgba(248,113,113,0.70)','rgba(253,186,116,0.70)']
+    );
+    {% endif %}
+
+    {% if loans %}
+    makeChart('loanChart',
+        [{% for l in loans %}"{{ l.person }} ({{ l.loan_type }})",{% endfor %}],
+        [{% for l in loans %}{{ l.amount }},{% endfor %}],
+        [{% for l in loans %}"{% if l.loan_type == 'gave' %}rgba(134,239,172,0.85){% else %}rgba(252,165,165,0.85){% endif %}",{% endfor %}]
+    );
     {% endif %}
 </script>
 </body>
