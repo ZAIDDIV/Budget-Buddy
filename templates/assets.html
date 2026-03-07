@@ -202,7 +202,8 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-section">
         <div class="sidebar-label">Main</div>
-        <a href="#" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link">
+    <span class="icon">🏠</span> Dashboard</a>
         <a href="{{ url_for('assets') }}" class="sidebar-link active"><span class="icon">💰</span> Assets</a>
         <a href="#" class="sidebar-link"><span class="icon">📊</span> Transactions</a>
         <a href="#" class="sidebar-link"><span class="icon">📈</span> Analysis</a>
