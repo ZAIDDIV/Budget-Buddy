@@ -31,6 +31,7 @@ class Asset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
+    date = db.Column(db.String(20), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
@@ -38,6 +39,7 @@ class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
+    date = db.Column(db.String(20), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
@@ -51,8 +53,8 @@ class Loan(db.Model):
     status = db.Column(db.String(10), default='unpaid')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-# ---- Home ----
 
+# ---- Home ----
 
 @app.route('/')
 def home():
@@ -60,24 +62,23 @@ def home():
         return redirect(url_for('dashboard'))
     return render_template("welcome.html")
 
-# ---- Dashboard ----
 
+# ---- Dashboard ----
 
 @app.route('/dashboard')
 def dashboard():
     if "user_id" not in session:
         return redirect(url_for('login'))
 
-    user_assets = Asset.query.filter_by(user_id=session["user_id"]).all()
+    user_assets   = Asset.query.filter_by(user_id=session["user_id"]).all()
     user_expenses = Expense.query.filter_by(user_id=session["user_id"]).all()
-    user_loans = Loan.query.filter_by(user_id=session["user_id"]).all()
+    user_loans    = Loan.query.filter_by(user_id=session["user_id"]).all()
 
-    has_data = bool(user_assets or user_expenses)
-
-    total_assets = sum(a.amount for a in user_assets)
-    total_expenses = sum(e.amount for e in user_expenses)
-    net_balance = total_assets - total_expenses
-    total_loans = sum(l.amount for l in user_loans if l.status == 'unpaid')
+    has_data      = bool(user_assets or user_expenses)
+    total_assets  = sum(a.amount for a in user_assets)
+    total_expenses= sum(e.amount for e in user_expenses)
+    net_balance   = total_assets - total_expenses
+    total_loans   = sum(l.amount for l in user_loans if l.status == 'unpaid')
 
     return render_template('dashboard.html',
                            has_data=has_data,
@@ -87,39 +88,68 @@ def dashboard():
                            total_assets=total_assets,
                            total_expenses=total_expenses,
                            net_balance=net_balance,
-                           total_loans=total_loans,
-                           )
+                           total_loans=total_loans)
+
 
 # ---- Assets ----
-
 
 @app.route("/assets", methods=["GET", "POST"])
 def assets():
     if "user_id" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         form_type = request.form.get("form_type")
-        category = request.form.get("category")
-        amount = request.form.get("amount")
+        category  = request.form.get("category")
+        amount    = request.form.get("amount")
+        date      = request.form.get("date", "")
+
         if category == "Other":
             category = request.form.get("custom_label", "Other").strip()
+
         if not category or not amount:
             flash("Please fill all fields.", "error")
             return redirect(url_for("assets"))
+
         if form_type == "expense":
-            db.session.add(Expense(category=category, amount=float(
-                amount), user_id=session["user_id"]))
+            db.session.add(Expense(
+                category=category,
+                amount=float(amount),
+                date=date or None,
+                user_id=session["user_id"]
+            ))
             flash("Expense added!", "success")
         else:
-            db.session.add(Asset(category=category, amount=float(
-                amount), user_id=session["user_id"]))
+            db.session.add(Asset(
+                category=category,
+                amount=float(amount),
+                date=date or None,
+                user_id=session["user_id"]
+            ))
             flash("Asset added!", "success")
+
         db.session.commit()
         return redirect(url_for("assets"))
-    user_assets = Asset.query.filter_by(user_id=session["user_id"]).all()
+
+    user_assets   = Asset.query.filter_by(user_id=session["user_id"]).all()
     user_expenses = Expense.query.filter_by(user_id=session["user_id"]).all()
-    user_loans = Loan.query.filter_by(user_id=session["user_id"]).all()
+    user_loans    = Loan.query.filter_by(user_id=session["user_id"]).all()
     return render_template("assets.html", assets=user_assets, expenses=user_expenses, loans=user_loans)
+
+
+@app.route("/edit_asset/<int:asset_id>", methods=["POST"])
+def edit_asset(asset_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    asset = Asset.query.get_or_404(asset_id)
+    if asset.user_id != session["user_id"]:
+        return redirect(url_for("assets"))
+    asset.category = request.form.get("category", asset.category)
+    asset.amount   = float(request.form.get("amount", asset.amount))
+    asset.date     = request.form.get("date", asset.date) or None
+    db.session.commit()
+    flash("Asset updated!", "success")
+    return redirect(url_for("assets"))
 
 
 @app.route("/delete_asset/<int:asset_id>", methods=["POST"])
@@ -132,6 +162,21 @@ def delete_asset(asset_id):
     db.session.delete(asset)
     db.session.commit()
     flash("Asset deleted.", "success")
+    return redirect(url_for("assets"))
+
+
+@app.route("/edit_expense/<int:expense_id>", methods=["POST"])
+def edit_expense(expense_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    expense = Expense.query.get_or_404(expense_id)
+    if expense.user_id != session["user_id"]:
+        return redirect(url_for("assets"))
+    expense.category = request.form.get("category", expense.category)
+    expense.amount   = float(request.form.get("amount", expense.amount))
+    expense.date     = request.form.get("date", expense.date) or None
+    db.session.commit()
+    flash("Expense updated!", "success")
     return redirect(url_for("assets"))
 
 
@@ -152,10 +197,10 @@ def delete_expense(expense_id):
 def add_loan():
     if "user_id" not in session:
         return redirect(url_for("login"))
-    loan_type = request.form.get("loan_type")
-    person = request.form.get("person", "").strip()
-    amount = request.form.get("amount")
-    due_date = request.form.get("due_date", "")
+    loan_type   = request.form.get("loan_type")
+    person      = request.form.get("person", "").strip()
+    amount      = request.form.get("amount")
+    due_date    = request.form.get("due_date", "")
     description = request.form.get("description", "").strip()
     if not person or not amount or not loan_type:
         flash("Please fill all required fields.", "error")
@@ -167,6 +212,22 @@ def add_loan():
     ))
     db.session.commit()
     flash("Loan added!", "success")
+    return redirect(url_for("assets"))
+
+
+@app.route("/edit_loan/<int:loan_id>", methods=["POST"])
+def edit_loan(loan_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    loan = Loan.query.get_or_404(loan_id)
+    if loan.user_id != session["user_id"]:
+        return redirect(url_for("assets"))
+    loan.person      = request.form.get("person", loan.person)
+    loan.amount      = float(request.form.get("amount", loan.amount))
+    loan.due_date    = request.form.get("due_date", loan.due_date) or None
+    loan.description = request.form.get("description", loan.description) or None
+    db.session.commit()
+    flash("Loan updated!", "success")
     return redirect(url_for("assets"))
 
 
@@ -195,17 +256,77 @@ def delete_loan(loan_id):
     flash("Loan deleted.", "success")
     return redirect(url_for("assets"))
 
-# ---- Auth ----
 
+# ---- Transactions ----
+
+@app.route("/transactions")
+def transactions():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_assets   = Asset.query.filter_by(user_id=session["user_id"]).all()
+    user_expenses = Expense.query.filter_by(user_id=session["user_id"]).all()
+    user_loans    = Loan.query.filter_by(user_id=session["user_id"]).all()
+
+    # Combine all into one list for JS to filter by date
+    all_transactions = []
+
+    for a in user_assets:
+        all_transactions.append({
+            'id':          a.id,
+            'date':        str(a.date) if a.date else '',
+            'type':        'asset',
+            'category':    a.category,
+            'description': '',
+            'amount':      a.amount
+        })
+
+    for e in user_expenses:
+        all_transactions.append({
+            'id':          e.id,
+            'date':        str(e.date) if e.date else '',
+            'type':        'expense',
+            'category':    e.category,
+            'description': '',
+            'amount':      e.amount
+        })
+
+    for l in user_loans:
+        all_transactions.append({
+            'id':          l.id,
+            'date':        str(l.due_date) if l.due_date else '',
+            'type':        'loan',
+            'category':    l.loan_type.capitalize(),
+            'description': l.description or '',
+            'amount':      l.amount
+        })
+
+    # Sort by date descending
+    all_transactions.sort(key=lambda x: x['date'] or '0000-00-00', reverse=True)
+
+    total_assets   = sum(a.amount for a in user_assets)
+    total_expenses = sum(e.amount for e in user_expenses)
+    loans_gave     = sum(l.amount for l in user_loans if l.loan_type == 'gave' and l.status == 'unpaid')
+    loans_took     = sum(l.amount for l in user_loans if l.loan_type == 'took' and l.status == 'unpaid')
+
+    return render_template('transactions.html',
+                           transactions=all_transactions,
+                           total_assets=total_assets,
+                           total_expenses=total_expenses,
+                           loans_gave=loans_gave,
+                           loans_took=loans_took)
+
+
+# ---- Auth ----
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username         = request.form.get('username')
+        email            = request.form.get('email')
+        password         = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        terms = request.form.get('terms')
+        terms            = request.form.get('terms')
         if not username or not email or not password or not confirm_password:
             flash("All fields are required.", "error")
             return redirect(url_for('signup'))
@@ -222,7 +343,7 @@ def signup():
             flash("Email already registered!", "error")
             return redirect(url_for('signup'))
         db.session.add(User(username=username, email=email,
-                       password=generate_password_hash(password)))
+                            password=generate_password_hash(password)))
         db.session.commit()
         flash("Account created! Please login.", "success")
         return redirect(url_for('login'))
@@ -232,14 +353,14 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
+        email    = request.form.get("email")
         password = request.form.get("password")
         if not email or not password:
             flash("Please fill in all fields.", "error")
             return redirect(url_for('login'))
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
+            session["user_id"]  = user.id
             session["username"] = user.username
             flash(f"Welcome back, {user.username}!", "success")
             return redirect(url_for('dashboard'))

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions — Budget Buddy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #c8a96e;
+            --accent-dim: rgba(200,169,110,0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239,68,68,0.12);
+            --purple: #818cf8;
+            --purple-dim: rgba(129,140,248,0.12);
+            --green-dim: rgba(134,239,172,0.12);
+            --text: #f0ece4;
+            --muted: #7a7a7a;
+            --sidebar-w: 240px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background-color:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
+
+        /* ── Navbar ── */
+        .navbar { background-color:rgba(13,13,13,0.97); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:14px 24px; position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; }
+        .navbar-brand { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--accent); text-decoration:none; letter-spacing:1px; }
+        .navbar-right { display:flex; align-items:center; gap:16px; }
+        .nav-user { font-size:0.85rem; color:var(--muted); }
+        .nav-user span { color:var(--text); font-weight:500; }
+        .btn-logout { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.82rem; padding:6px 14px; border-radius:6px; text-decoration:none; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+        .btn-logout:hover { border-color:#ef4444; color:#fca5a5; }
+        .sidebar-toggle { display:none; background:none; border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:1rem; }
+
+        /* ── Sidebar ── */
+        .sidebar { position:fixed; top:57px; left:0; width:var(--sidebar-w); height:calc(100vh - 57px); background:var(--surface); border-right:1px solid var(--border); padding:28px 0; z-index:100; overflow-y:auto; transition:transform 0.3s ease; }
+        .sidebar-section { padding:0 16px; margin-bottom:28px; }
+        .sidebar-label { font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:0 8px; margin-bottom:8px; }
+        .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:400; transition:all 0.2s; margin-bottom:2px; }
+        .sidebar-link:hover { background:var(--surface2); color:var(--text); }
+        .sidebar-link.active { background:var(--accent-dim); color:var(--accent); font-weight:500; }
+        .sidebar-link .icon { font-size:1rem; width:20px; text-align:center; }
+        .sidebar-divider { border:none; border-top:1px solid var(--border); margin:16px; }
+
+        /* ── Main ── */
+        .main-content { margin-left:var(--sidebar-w); margin-top:57px; padding:36px 40px; min-height:calc(100vh - 57px); }
+
+        /* ── Page Header ── */
+        .page-eyebrow { font-size:0.75rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+        .page-title { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+        .page-sub { font-size:0.9rem; color:var(--muted); margin-bottom:32px; }
+
+        /* ── Quote Box ── */
+        .quote-box {
+            border:1px solid var(--border);
+            border-left:3px solid var(--accent);
+            background:var(--surface);
+            border-radius:10px;
+            padding:18px 24px;
+            margin-bottom:28px;
+            display:flex;
+            align-items:center;
+            gap:14px;
+            animation:fadeSlide 0.5s ease;
+        }
+        .quote-text { font-family:'Playfair Display',serif; font-size:1rem; color:var(--accent); font-style:italic; }
+
+        /* ── Cards ── */
+        .card-dark { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:28px; position:relative; margin-bottom:24px; }
+        .card-dark::before { content:''; position:absolute; top:-1px; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .card-title { font-size:0.82rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+
+        /* ── Form ── */
+        .form-label { font-size:0.78rem; color:var(--muted); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
+        .form-control { background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.93rem; padding:11px 14px; transition:border-color 0.2s; }
+        .form-control:focus { background:var(--surface2); border-color:var(--accent); color:var(--text); box-shadow:0 0 0 3px rgba(200,169,110,0.1); }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(0.6); cursor:pointer; }
+
+        .btn-generate { background:var(--accent); color:#0d0d0d; font-weight:700; font-size:0.9rem; padding:11px 32px; border-radius:8px; border:none; cursor:pointer; transition:opacity 0.2s,transform 0.1s; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+        .btn-generate:hover { opacity:0.88; transform:translateY(-1px); }
+        .btn-generate:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+        .btn-reset { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.88rem; padding:10px 20px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+        .btn-reset:hover { border-color:var(--muted); color:var(--text); }
+
+        .btn-pdf { background:transparent; border:1px solid var(--accent); color:var(--accent); font-weight:600; font-size:0.88rem; padding:10px 24px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; }
+        .btn-pdf:hover { background:rgba(200,169,110,0.1); }
+
+        /* ── Bank Statement Header ── */
+        .bank-header {
+            border:1px solid var(--border);
+            border-radius:12px;
+            background:var(--surface);
+            padding:32px;
+            margin-bottom:20px;
+            position:relative;
+            overflow:hidden;
+            animation:fadeSlide 0.4s ease;
+        }
+        .bank-header::before { content:''; position:absolute; top:-1px; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .bank-header::after {
+            content:'BUDGET BUDDY';
+            position:absolute;
+            top:50%; right:28px;
+            transform:translateY(-50%);
+            font-family:'Playfair Display',serif;
+            font-size:4rem;
+            font-weight:900;
+            color:rgba(200,169,110,0.04);
+            letter-spacing:4px;
+            pointer-events:none;
+            white-space:nowrap;
+        }
+
+        .bh-brand { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--accent); letter-spacing:1px; }
+        .bh-brand-sub { font-size:0.72rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:3px; }
+        .bh-period-label { font-size:0.72rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+        .bh-period-val { font-family:'Playfair Display',serif; font-size:1rem; color:var(--text); margin-top:3px; }
+
+        .bh-divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+
+        .bh-info-label { font-size:0.72rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+        .bh-info-val { font-size:0.93rem; color:var(--text); font-weight:500; }
+
+        /* ── Summary Cards ── */
+        .summary-card { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+        .summary-label { font-size:0.72rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+        .summary-value { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; }
+        .summary-value.gold { color:var(--accent); }
+        .summary-value.green { color:#86efac; }
+        .summary-value.red { color:#fca5a5; }
+        .summary-value.purple { color:#c7d2fe; }
+        .summary-value.balance-positive { color:#86efac; }
+        .summary-value.balance-negative { color:#fca5a5; }
+
+        /* ── Table ── */
+        .table-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px; animation:fadeSlide 0.4s ease; }
+        .table-card-head { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .table-card-title { font-size:0.82rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+        .table-count-badge { font-size:0.78rem; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px 12px; }
+
+        .table-dark-custom { width:100%; border-collapse:collapse; }
+        .table-dark-custom th { font-size:0.72rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:10px 20px; border-bottom:1px solid var(--border); font-weight:500; text-align:left; white-space:nowrap; }
+        .table-dark-custom td { padding:13px 20px; border-bottom:1px solid #1e1e1e; font-size:0.88rem; color:var(--text); vertical-align:middle; }
+        .table-dark-custom tr:last-child td { border-bottom:none; }
+        .table-dark-custom tbody tr { transition:background 0.15s; }
+        .table-dark-custom tbody tr:hover { background:var(--surface2); }
+        .totals-row td { border-top:2px solid var(--border) !important; background:var(--surface); }
+
+        /* ── Badges ── */
+        .badge-type { font-size:0.72rem; padding:3px 10px; border-radius:20px; font-weight:500; white-space:nowrap; }
+        .badge-asset   { background:var(--accent-dim); color:var(--accent); }
+        .badge-expense { background:var(--red-dim); color:#fca5a5; }
+        .badge-loan-gave { background:var(--green-dim); color:#86efac; }
+        .badge-loan-took { background:var(--red-dim); color:#fca5a5; }
+        .badge-cat { background:var(--surface2); color:var(--muted); border:1px solid var(--border); font-size:0.72rem; padding:3px 10px; border-radius:20px; }
+
+        .amt-asset   { font-family:'Playfair Display',serif; font-size:0.95rem; color:#86efac; font-weight:700; }
+        .amt-expense { font-family:'Playfair Display',serif; font-size:0.95rem; color:#fca5a5; font-weight:700; }
+        .amt-loan    { font-family:'Playfair Display',serif; font-size:0.95rem; color:#c7d2fe; font-weight:700; }
+        .date-cell   { font-size:0.8rem; color:var(--muted); white-space:nowrap; }
+
+        .empty-state { text-align:center; padding:48px 20px; color:var(--muted); font-size:0.9rem; }
+        .empty-icon  { font-size:2rem; margin-bottom:10px; opacity:0.4; }
+
+        /* ── Animations ── */
+        @keyframes fadeSlide {
+            from { opacity:0; transform:translateY(12px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ── Statement wrapper (hidden by default) ── */
+        #statement-section { display:none; }
+        #statement-section.visible { display:block; }
+
+        /* ── Actions row ── */
+        .actions-row { display:flex; gap:12px; justify-content:flex-end; margin-bottom:24px; flex-wrap:wrap; }
+
+        /* ── Responsive ── */
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:24px 16px; }
+            .sidebar-toggle { display:block; }
+            .page-title { font-size:1.6rem; }
+            .bank-header::after { display:none; }
+        }
+
+        /* ── Print styles ── */
+        @media print {
+            .navbar, .sidebar, .quote-box, #date-card, .actions-row, .sidebar-toggle { display:none !important; }
+            .main-content { margin-left:0 !important; margin-top:0 !important; padding:20px !important; }
+            body, .bank-header, .table-card, .summary-card { background:#fff !important; color:#000 !important; }
+            .bank-header::after { display:none; }
+            .bh-brand, .page-title { color:#000 !important; }
+            .bh-period-val, .bh-info-val, .quote-text { color:#333 !important; }
+            .summary-value, .summary-value.gold, .summary-value.green, .summary-value.red, .summary-value.purple, .summary-value.balance-positive, .summary-value.balance-negative { color:#000 !important; }
+            .table-dark-custom th, .table-dark-custom td { color:#000 !important; border-color:#ccc !important; }
+            .badge-type, .badge-cat { color:#333 !important; background:#f0f0f0 !important; border-color:#ccc !important; }
+            .amt-asset, .amt-expense, .amt-loan { color:#000 !important; }
+            .date-cell, .summary-label, .bh-info-label, .table-count-badge { color:#555 !important; }
+            .bank-header, .table-card, .summary-card { border-color:#ccc !important; }
+            .bank-header::before, .card-dark::before { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <a class="navbar-brand" href="{{ url_for('home') }}">Budget Buddy</a>
+    </div>
+    <div class="navbar-right">
+        <span class="nav-user">Hello, <span>{{ session.username }}</span></span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+        <a href="{{ url_for('assets') }}" class="sidebar-link"><span class="icon">💰</span> Assets</a>
+        <a href="{{ url_for('transactions') }}" class="sidebar-link active"><span class="icon">📊</span> Transactions</a>
+        <a href="#" class="sidebar-link"><span class="icon">📈</span> Analysis</a>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <a href="#" class="sidebar-link"><span class="icon">🤖</span> Ask Buddy</a>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:#fca5a5;"><span class="icon">🚪</span> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+
+    <!-- Page Header -->
+    <p class="page-eyebrow">Finance</p>
+    <h1 class="page-title">Transactions</h1>
+    <p class="page-sub">Generate a statement for any period — assets, expenses & loans</p>
+
+    <!-- Quote -->
+    <div class="quote-box">
+        <span style="font-size:1.3rem;">💬</span>
+        <span class="quote-text" id="quote-text"></span>
+    </div>
+
+    <!-- Date Range Card -->
+    <div class="card-dark" id="date-card">
+        <div class="card-title">Select Statement Period</div>
+        <div class="d-flex align-items-end gap-3 flex-wrap">
+            <div>
+                <label class="form-label">From</label>
+                <input type="date" class="form-control" id="from-date" onchange="onDateChange()" style="width:180px;">
+            </div>
+            <div>
+                <label class="form-label">To</label>
+                <input type="date" class="form-control" id="to-date" onchange="onDateChange()" style="width:180px;">
+            </div>
+            <button class="btn-generate" id="btn-generate" onclick="generateStatement()" disabled>
+                Generate Statement
+            </button>
+        </div>
+    </div>
+
+    <!-- Statement Section (hidden until generated) -->
+    <div id="statement-section">
+
+        <!-- Actions -->
+        <div class="actions-row">
+            <button class="btn-reset" onclick="resetStatement()">← Change Dates</button>
+            <button class="btn-pdf" onclick="window.print()">⬇ Export PDF</button>
+        </div>
+
+        <!-- Bank Statement Header -->
+        <div class="bank-header">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                <div>
+                    <div class="bh-brand">Budget Buddy</div>
+                    <div class="bh-brand-sub">Personal Finance Statement</div>
+                </div>
+                <div class="text-end">
+                    <div class="bh-period-label">Statement Period</div>
+                    <div class="bh-period-val" id="display-period">—</div>
+                </div>
+            </div>
+
+            <hr class="bh-divider">
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="bh-info-label">Account Holder</div>
+                    <div class="bh-info-val">{{ session.username }}</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bh-info-label">Generated On</div>
+                    <div class="bh-info-val" id="generated-on">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bh-info-label">Total Entries</div>
+                    <div class="bh-info-val" id="total-entries">0 records</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bh-info-label">Statement Ref</div>
+                    <div class="bh-info-val" style="font-family:'Playfair Display',serif;" id="stmt-ref">—</div>
+                </div>
+            </div>
+
+            <hr class="bh-divider">
+
+            <!-- Capital Summary -->
+            <div class="row g-3" id="summary-cards">
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">Total Capital</div>
+                        <div class="summary-value gold">₨ {{ "%.0f"|format(total_assets) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">Total Expenses</div>
+                        <div class="summary-value red">₨ {{ "%.0f"|format(total_expenses) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">Net Balance</div>
+                        {% set net = total_assets - total_expenses %}
+                        <div class="summary-value {% if net >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+                            ₨ {{ "%.0f"|format(net) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">I'm Owed</div>
+                        <div class="summary-value green">₨ {{ "%.0f"|format(loans_gave) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">I Owe</div>
+                        <div class="summary-value red">₨ {{ "%.0f"|format(loans_took) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="summary-card">
+                        <div class="summary-label">Period Net</div>
+                        <div class="summary-value" id="period-net-val">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="table-card">
+            <div class="table-card-head">
+                <div class="table-card-title">Transaction Ledger</div>
+                <span class="table-count-badge" id="ledger-count">0 entries</span>
+            </div>
+
+            <div id="table-body-wrap">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+        <!-- Bottom actions -->
+        <div class="actions-row">
+            <button class="btn-reset" onclick="resetStatement()">← Change Dates</button>
+            <button class="btn-pdf" onclick="window.print()">⬇ Export PDF</button>
+        </div>
+
+    </div><!-- /statement-section -->
+
+</div><!-- /main-content -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    /* ── All transactions passed from Flask ── */
+    const ALL_TRANSACTIONS = [
+        {% for t in transactions %}
+        {
+            id: {{ t.id }},
+            date: "{{ t.date }}",
+            type: "{{ t.type }}",
+            category: "{{ t.category }}",
+            description: "{{ t.description | default('—') }}",
+            amount: {{ t.amount }}
+        },
+        {% endfor %}
+    ];
+
+    /* ── Quotes ── */
+    const QUOTES = [
+        "The moment of truth — let's see where it all went sideways.",
+        "Every rupee has a story. Some of them are quite something.",
+        "Time to face the music. Don't shoot the messenger.",
+        "Your wallet called. It wants a word with you.",
+        "Statement time. Breathe. It's just numbers... probably.",
+        "Ah yes, the financial autopsy begins.",
+    ];
+
+    document.getElementById('quote-text').textContent =
+        QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
+    /* ── Helpers ── */
+    function fmtMoney(n) {
+        return '₨ ' + Number(n).toLocaleString('en-PK', { minimumFractionDigits: 2 });
+    }
+
+    function fmtDate(str) {
+        if (!str) return '—';
+        const d = new Date(str);
+        return d.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    function genRef() {
+        return 'BB-' + Date.now().toString(36).toUpperCase().slice(-6);
+    }
+
+    /* ── Date inputs ── */
+    function onDateChange() {
+        const from = document.getElementById('from-date').value;
+        const to   = document.getElementById('to-date').value;
+        document.getElementById('btn-generate').disabled = !(from && to);
+
+        /* If statement already visible, hide it */
+        const sec = document.getElementById('statement-section');
+        if (sec.classList.contains('visible')) {
+            sec.classList.remove('visible');
+            document.getElementById('btn-generate').style.display = 'inline-block';
+        }
+    }
+
+    /* ── Generate ── */
+    function generateStatement() {
+        const from = document.getElementById('from-date').value;
+        const to   = document.getElementById('to-date').value;
+        if (!from || !to) return;
+
+        /* Filter */
+        const filtered = ALL_TRANSACTIONS.filter(t => t.date >= from && t.date <= to);
+
+        /* Period display */
+        document.getElementById('display-period').textContent =
+            fmtDate(from) + ' — ' + fmtDate(to);
+        document.getElementById('generated-on').textContent =
+            fmtDate(new Date().toISOString().split('T')[0]);
+        document.getElementById('total-entries').textContent =
+            filtered.length + ' records';
+        document.getElementById('stmt-ref').textContent = genRef();
+        document.getElementById('ledger-count').textContent =
+            filtered.length + ' entries';
+
+        /* Period net */
+        const pAssets   = filtered.filter(t=>t.type==='asset').reduce((s,t)=>s+t.amount,0);
+        const pExpenses = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+        const pNet      = pAssets - pExpenses;
+        const pNetEl    = document.getElementById('period-net-val');
+        pNetEl.textContent = fmtMoney(pNet);
+        pNetEl.className = 'summary-value ' + (pNet >= 0 ? 'balance-positive' : 'balance-negative');
+
+        /* Build table */
+        const wrap = document.getElementById('table-body-wrap');
+
+        if (filtered.length === 0) {
+            wrap.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    No transactions found for this period.
+                </div>`;
+        } else {
+            let rows = '';
+            let totalAsset = 0, totalExpense = 0, totalLoan = 0;
+
+            filtered.forEach((t, i) => {
+                let typeBadge = '';
+                let amtClass  = '';
+                let amtPrefix = '+ ';
+
+                if (t.type === 'asset') {
+                    typeBadge = '<span class="badge-type badge-asset">Asset</span>';
+                    amtClass  = 'amt-asset';
+                    totalAsset += t.amount;
+                } else if (t.type === 'expense') {
+                    typeBadge = '<span class="badge-type badge-expense">Expense</span>';
+                    amtClass  = 'amt-expense';
+                    amtPrefix = '− ';
+                    totalExpense += t.amount;
+                } else if (t.type === 'loan') {
+                    if (t.category.toLowerCase() === 'gave') {
+                        typeBadge = '<span class="badge-type badge-loan-gave">Loan — Gave</span>';
+                    } else {
+                        typeBadge = '<span class="badge-type badge-loan-took">Loan — Took</span>';
+                        amtPrefix = '− ';
+                    }
+                    amtClass = 'amt-loan';
+                    totalLoan += t.amount;
+                }
+
+                rows += `
+                <tr>
+                    <td style="color:var(--muted);font-size:0.8rem;">${i+1}</td>
+                    <td class="date-cell">${fmtDate(t.date)}</td>
+                    <td>${typeBadge}</td>
+                    <td><span class="badge-cat">${t.category}</span></td>
+                    <td style="color:#b0aca4;">${t.description}</td>
+                    <td style="text-align:right;">
+                        <span class="${amtClass}">${amtPrefix}${fmtMoney(t.amount)}</span>
+                    </td>
+                </tr>`;
+            });
+
+            /* Totals row */
+            rows += `
+            <tr class="totals-row">
+                <td colspan="4"></td>
+                <td style="color:var(--muted);font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;">Period Totals</td>
+                <td style="text-align:right;">
+                    <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;">
+                        <span style="font-size:0.78rem;color:#86efac;">+ ${fmtMoney(totalAsset)}</span>
+                        <span style="font-size:0.78rem;color:#fca5a5;">− ${fmtMoney(totalExpense)}</span>
+                        <span style="font-size:0.78rem;color:#c7d2fe;">~ ${fmtMoney(totalLoan)}</span>
+                    </div>
+                </td>
+            </tr>`;
+
+            wrap.innerHTML = `
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th style="text-align:right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        }
+
+        /* Show statement, hide generate button */
+        document.getElementById('statement-section').classList.add('visible');
+        document.getElementById('btn-generate').style.display = 'none';
+    }
+
+    /* ── Reset ── */
+    function resetStatement() {
+        document.getElementById('statement-section').classList.remove('visible');
+        document.getElementById('btn-generate').style.display = 'inline-block';
+        document.getElementById('from-date').value = '';
+        document.getElementById('to-date').value   = '';
+        document.getElementById('btn-generate').disabled = true;
+    }
+
+    /* ── Sidebar toggle ── */
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+</script>
+</body>
+</html>
