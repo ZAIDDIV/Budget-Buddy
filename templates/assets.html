@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets — Budget Buddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #c8a96e;
+            --accent-dim: rgba(200,169,110,0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239,68,68,0.12);
+            --purple: #818cf8;
+            --purple-dim: rgba(129,140,248,0.12);
+            --text: #f0ece4;
+            --muted: #7a7a7a;
+            --sidebar-w: 240px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0d0d0d; color:#f0ece4; font-family:'DM Sans',sans-serif; min-height:100vh; }
+
+        /* NAVBAR */
+        .navbar { background:rgba(13,13,13,0.97); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); padding:14px 24px; position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+        .navbar-brand { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--accent); text-decoration:none; letter-spacing:1px; }
+        .navbar-right { display:flex; align-items:center; gap:16px; }
+        .nav-user { font-size:0.85rem; color:var(--muted); }
+        .nav-user span { color:var(--text); font-weight:500; }
+        .btn-logout { background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.82rem; padding:6px 14px; border-radius:6px; text-decoration:none; transition:all 0.2s; }
+        .btn-logout:hover { border-color:#ef4444; color:#fca5a5; }
+        .sidebar-toggle { display:none; background:none; border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:1rem; }
+
+        /* SIDEBAR */
+        .sidebar { position:fixed; top:57px; left:0; width:var(--sidebar-w); height:calc(100vh - 57px); background:var(--surface); border-right:1px solid var(--border); padding:28px 0; z-index:100; overflow-y:auto; transition:transform 0.3s ease; box-shadow:4px 0 24px rgba(0,0,0,0.3); }
+        .sidebar-section { padding:0 16px; margin-bottom:28px; }
+        .sidebar-label { font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:0 8px; margin-bottom:8px; }
+        .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:var(--muted); text-decoration:none; font-size:0.9rem; transition:all 0.2s; margin-bottom:2px; }
+        .sidebar-link:hover { background:var(--surface2); color:var(--text); }
+        .sidebar-link.active { background:var(--accent-dim); color:var(--accent); font-weight:500; box-shadow:inset 3px 0 0 var(--accent); }
+        .sidebar-link .icon { font-size:1rem; width:20px; text-align:center; }
+        .sidebar-divider { border:none; border-top:1px solid var(--border); margin:16px; }
+
+        /* MAIN */
+        .main-content { margin-left:var(--sidebar-w); margin-top:57px; padding:40px 44px; min-height:calc(100vh - 57px); }
+
+        /* FLASH */
+        .flash-container { position:fixed; top:72px; right:20px; z-index:999; max-width:340px; }
+        .flash-msg { padding:12px 18px; border-radius:8px; font-size:0.88rem; margin-bottom:8px; border-left:3px solid; animation:slideIn 0.3s ease; }
+        .flash-success { background:rgba(34,197,94,0.12); border-color:#22c55e; color:#86efac; }
+        .flash-error { background:rgba(239,68,68,0.12); border-color:#ef4444; color:#fca5a5; }
+        @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom:36px; }
+        .page-eyebrow { font-size:0.75rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+        .page-title { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+        .page-sub { font-size:0.9rem; color:var(--muted); }
+
+        /* SECTION DIVIDER */
+        .section-divider { display:flex; align-items:center; gap:16px; margin:48px 0 32px; }
+        .section-divider-line { flex:1; height:1px; background:var(--border); }
+        .section-divider-label { font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+        /* SUMMARY */
+        .summary-row { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:24px; }
+        .summary-card { background:#161616; border:1px solid var(--border); border-radius:12px; padding:20px 18px; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:transform 0.2s; }
+        .summary-card:hover { transform:translateY(-3px); }
+        .summary-label { font-size:0.73rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .summary-value { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; }
+        .gold { color:var(--accent); }
+        .sgreen { color:#86efac; }
+        .sred { color:#fca5a5; }
+        .spurple { color:#c7d2fe; }
+        .balance-positive { color:#86efac; }
+        .balance-negative { color:#fca5a5; }
+
+        /* TWO COL GRID */
+        .two-col { display:grid; grid-template-columns:5fr 7fr; gap:24px; margin-bottom:24px; }
+        .one-col { margin-bottom:24px; }
+
+        /* CARDS */
+        .card { background:#161616; border:1px solid var(--border); border-radius:14px; padding:28px; position:relative; box-shadow:0 6px 24px rgba(0,0,0,0.5), 0 0 28px rgba(200,169,110,0.07); transition:transform 0.3s,box-shadow 0.3s; }
+        .card:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 32px rgba(200,169,110,0.1); }
+        .card::before { content:''; position:absolute; top:0; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .card.expense { box-shadow:0 6px 24px rgba(0,0,0,0.5), 0 0 28px rgba(239,68,68,0.07); }
+        .card.expense:hover { box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 32px rgba(239,68,68,0.1); }
+        .card.expense::before { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+        .card.loan { box-shadow:0 6px 24px rgba(0,0,0,0.5), 0 0 28px rgba(129,140,248,0.07); }
+        .card.loan:hover { box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 32px rgba(129,140,248,0.1); }
+        .card.loan::before { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+        .card-title { font-size:0.8rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:22px; }
+
+        /* CHART */
+        .chart-box { position:relative; width:100%; height:260px; }
+
+        /* EMPTY */
+        .empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+        .empty-icon { font-size:2rem; display:block; margin-bottom:12px; opacity:0.4; }
+
+        /* FORMS */
+        .form-group { margin-bottom:16px; }
+        .form-label { display:block; font-size:0.78rem; color:var(--muted); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px; }
+        .form-control, .form-select { width:100%; background:#1e1e1e; border:1px solid var(--border); border-radius:8px; color:#f0ece4; font-family:'DM Sans',sans-serif; font-size:0.93rem; padding:11px 14px; transition:border-color 0.2s,box-shadow 0.2s; appearance:none; -webkit-appearance:none; }
+        .form-control:focus, .form-select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(200,169,110,0.1); }
+        .card.expense .form-control:focus, .card.expense .form-select:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(239,68,68,0.1); }
+        .card.loan .form-control:focus, .card.loan .form-select:focus { border-color:var(--purple); box-shadow:0 0 0 3px rgba(129,140,248,0.1); }
+        .form-control::placeholder { color:#3a3a3a; }
+        .form-select option { background:#1e1e1e; }
+        .custom-wrap { display:none; margin-top:10px; }
+        .custom-wrap.show { display:block; }
+
+        /* BUTTONS */
+        .btn { width:100%; padding:12px; border-radius:8px; border:none; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+        .btn-asset { background:var(--accent); color:#0d0d0d; box-shadow:0 4px 14px rgba(200,169,110,0.3); }
+        .btn-expense { background:var(--red); color:#fff; box-shadow:0 4px 14px rgba(239,68,68,0.3); }
+        .btn-loan { background:var(--purple); color:#fff; box-shadow:0 4px 14px rgba(129,140,248,0.3); }
+        .btn:hover { opacity:0.88; transform:translateY(-2px); }
+        .btn-icon { background:transparent; border:1px solid transparent; color:var(--muted); padding:5px 8px; border-radius:6px; cursor:pointer; transition:all 0.2s; font-size:0.95rem; line-height:1; }
+        .btn-icon.edit:hover { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+        .btn-icon.del:hover { background:var(--red-dim); border-color:var(--red); color:#fca5a5; }
+
+        /* TABLE */
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; min-width:480px; }
+        thead th { font-size:0.73rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:10px 14px; border-bottom:1px solid var(--border); font-weight:500; text-align:left; background:rgba(30,30,30,0.5); }
+        tbody td { padding:12px 14px; border-bottom:1px solid rgba(42,42,42,0.5); font-size:0.9rem; color:#f0ece4; vertical-align:middle; }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover { background:#1e1e1e; }
+        .badge { font-size:0.78rem; padding:3px 10px; border-radius:20px; font-weight:500; }
+        .badge-asset { background:var(--accent-dim); color:var(--accent); border:1px solid rgba(200,169,110,0.2); }
+        .badge-expense { background:var(--red-dim); color:#fca5a5; border:1px solid rgba(239,68,68,0.2); }
+        .badge-gave { background:rgba(134,239,172,0.12); color:#86efac; border:1px solid rgba(134,239,172,0.2); }
+        .badge-took { background:rgba(252,165,165,0.12); color:#fca5a5; border:1px solid rgba(252,165,165,0.2); }
+        .amt { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:#86efac; }
+        .amt.expense { color:#fca5a5; }
+        .amt.gave { color:#86efac; }
+        .amt.took { color:#fca5a5; }
+        .date-cell { font-size:0.82rem; color:var(--muted); }
+        .action-btns { display:flex; gap:4px; }
+
+        /* LOAN */
+        .loan-toggle { display:flex; gap:10px; }
+        .loan-toggle input[type="radio"] { display:none; }
+        .loan-toggle-btn { flex:1; text-align:center; padding:10px; border-radius:8px; border:1px solid var(--border); color:var(--muted); cursor:pointer; font-size:0.88rem; transition:all 0.2s; background:#1e1e1e; }
+        .loan-toggle input[type="radio"]:checked + .loan-toggle-btn { border-color:var(--purple); color:#c7d2fe; background:var(--purple-dim); }
+        .loan-stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .loan-stat { border-radius:12px; padding:20px; border:1px solid var(--border); }
+        .loan-stat.gave { background:rgba(134,239,172,0.06); border-color:rgba(134,239,172,0.2); }
+        .loan-stat.took { background:rgba(252,165,165,0.06); border-color:rgba(252,165,165,0.2); }
+        .loan-stat-label { font-size:0.78rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .loan-stat-value { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; }
+        .loan-stat.gave .loan-stat-value { color:#86efac; }
+        .loan-stat.took .loan-stat-value { color:#fca5a5; }
+        .loan-stat-sub { font-size:0.78rem; color:var(--muted); margin-top:4px; }
+        .status-btn { background:transparent; border:1px solid var(--border); border-radius:20px; font-size:0.78rem; padding:4px 12px; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+        .status-paid { border-color:rgba(134,239,172,0.4); color:#86efac; background:rgba(134,239,172,0.08); }
+        .status-unpaid { border-color:rgba(251,191,36,0.4); color:#fde68a; background:rgba(251,191,36,0.08); }
+
+        /* MODAL */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:500; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:#161616; border:1px solid var(--border); border-radius:16px; padding:36px; width:100%; max-width:440px; position:relative; animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 24px 64px rgba(0,0,0,0.7); }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.88) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        .modal-box::before { content:''; position:absolute; top:0; left:24px; right:24px; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+        .modal-box.expense::before { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+        .modal-box.loan::before { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+        .modal-title { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; color:#f0ece4; margin-bottom:24px; }
+        .modal-close { position:absolute; top:16px; right:16px; background:transparent; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; transition:all 0.2s; }
+        .modal-close:hover { color:#f0ece4; transform:rotate(90deg); }
+        .btn-save { width:100%; padding:12px; border-radius:8px; border:none; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+        .btn-save.asset { background:var(--accent); color:#0d0d0d; }
+        .btn-save.expense { background:var(--red); color:#fff; }
+        .btn-save.loan { background:var(--purple); color:#fff; }
+        .btn-save:hover { opacity:0.88; transform:translateY(-1px); }
+
+        /* RESPONSIVE */
+        @media (max-width:992px) { .two-col { grid-template-columns:1fr; } .summary-row { grid-template-columns:repeat(3,1fr); } }
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.open { transform:translateX(0); }
+            .main-content { margin-left:0; padding:24px 16px; }
+            .sidebar-toggle { display:block; }
+            .page-title { font-size:1.65rem; }
+            .summary-row { grid-template-columns:repeat(2,1fr); }
+            .modal-box { margin:16px; padding:24px; }
+            .loan-stats { grid-template-columns:1fr; }
+        }
+        @media (max-width:480px) { .main-content { padding:20px 12px; } }
+
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-track { background:#0d0d0d; }
+        ::-webkit-scrollbar-thumb { background:#2a2a2a; border-radius:3px; }
+    </style>
+</head>
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<nav class="navbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <a class="navbar-brand" href="{{ url_for('home') }}">Budget Buddy</a>
+    </div>
+    <div class="navbar-right">
+        <span class="nav-user">Hello, <span>{{ session.username }}</span></span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+        <a href="{{ url_for('assets') }}" class="sidebar-link active"><span class="icon">💰</span> Assets</a>
+        <a href="#" class="sidebar-link"><span class="icon">📊</span> Transactions</a>
+        <a href="#" class="sidebar-link"><span class="icon">📈</span> Analysis</a>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <a href="#" class="sidebar-link"><span class="icon">🤖</span> Ask Buddy</a>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <a href="{{ url_for('login') }}" class="sidebar-link"><span class="icon">🔑</span> Login</a>
+        <a href="{{ url_for('signup') }}" class="sidebar-link"><span class="icon">✨</span> Sign Up</a>
+        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:#fca5a5;"><span class="icon">🚪</span> Logout</a>
+    </div>
+</div>
+
+<!-- EDIT ASSET MODAL -->
+<div class="modal-overlay" id="editAssetModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('editAssetModal')">✕</button>
+        <div class="modal-title">✏️ Edit Asset</div>
+        <form method="POST" id="editAssetForm">
+            <input type="hidden" name="form_type" value="edit_asset">
+            <div class="form-group"><label class="form-label">Category</label><input type="text" name="category" id="editAssetCategory" class="form-control" required maxlength="100"></div>
+            <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" id="editAssetAmount" class="form-control" required min="0"></div>
+            <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Date</label><input type="date" name="date" id="editAssetDate" class="form-control"></div>
+            <button type="submit" class="btn-save asset">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT EXPENSE MODAL -->
+<div class="modal-overlay" id="editExpenseModal">
+    <div class="modal-box expense">
+        <button class="modal-close" onclick="closeModal('editExpenseModal')">✕</button>
+        <div class="modal-title">✏️ Edit Expense</div>
+        <form method="POST" id="editExpenseForm">
+            <input type="hidden" name="form_type" value="edit_expense">
+            <div class="form-group"><label class="form-label">Category</label><input type="text" name="category" id="editExpenseCategory" class="form-control" required maxlength="100"></div>
+            <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" id="editExpenseAmount" class="form-control" required min="0"></div>
+            <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Date</label><input type="date" name="date" id="editExpenseDate" class="form-control"></div>
+            <button type="submit" class="btn-save expense">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT LOAN MODAL -->
+<div class="modal-overlay" id="editLoanModal">
+    <div class="modal-box loan">
+        <button class="modal-close" onclick="closeModal('editLoanModal')">✕</button>
+        <div class="modal-title">✏️ Edit Loan</div>
+        <form method="POST" id="editLoanForm">
+            <div class="form-group"><label class="form-label">Person Name</label><input type="text" name="person" id="editLoanPerson" class="form-control" required maxlength="100"></div>
+            <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" id="editLoanAmount" class="form-control" required min="0"></div>
+            <div class="form-group"><label class="form-label">Due Date</label><input type="date" name="due_date" id="editLoanDueDate" class="form-control"></div>
+            <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Description</label><input type="text" name="description" id="editLoanDescription" class="form-control" maxlength="200"></div>
+            <button type="submit" class="btn-save loan">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="page-header">
+        <p class="page-eyebrow">Finance</p>
+        <h1 class="page-title">Assets, Expenses & Loans</h1>
+        <p class="page-sub">Track your income, expenses, and loans all in one place</p>
+    </div>
+
+    {% set gave_unpaid_total = loans | selectattr('loan_type','equalto','gave') | selectattr('status','equalto','unpaid') | sum(attribute='amount') if loans else 0 %}
+    {% set took_unpaid_total = loans | selectattr('loan_type','equalto','took') | selectattr('status','equalto','unpaid') | sum(attribute='amount') if loans else 0 %}
+    {% set net = (assets|sum(attribute='amount') if assets else 0) - (expenses|sum(attribute='amount') if expenses else 0) %}
+
+    <div class="summary-row">
+        <div class="summary-card"><div class="summary-label">Total Assets</div><div class="summary-value gold">₨ {{ "%.0f"|format(assets|sum(attribute='amount')) if assets else 0 }}</div></div>
+        <div class="summary-card"><div class="summary-label">Total Expenses</div><div class="summary-value sred">₨ {{ "%.0f"|format(expenses|sum(attribute='amount')) if expenses else 0 }}</div></div>
+        <div class="summary-card"><div class="summary-label">Net Balance</div><div class="summary-value {% if net >= 0 %}balance-positive{% else %}balance-negative{% endif %}">₨ {{ "%.0f"|format(net) }}</div></div>
+        <div class="summary-card"><div class="summary-label">💸 I'm Owed</div><div class="summary-value sgreen">₨ {{ "%.0f"|format(gave_unpaid_total) }}</div></div>
+        <div class="summary-card"><div class="summary-label">🤲 I Owe</div><div class="summary-value sred">₨ {{ "%.0f"|format(took_unpaid_total) }}</div></div>
+        <div class="summary-card"><div class="summary-label">Total Loans</div><div class="summary-value spurple">{{ loans|length }}</div></div>
+    </div>
+
+    <!-- ASSETS -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">💰 Assets</div><div class="section-divider-line"></div></div>
+    <div class="two-col">
+        <div class="card">
+            <div class="card-title">Add New Asset</div>
+            <form method="POST" action="{{ url_for('assets') }}">
+                <input type="hidden" name="form_type" value="asset">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select" required onchange="toggleCustom(this,'asset-custom')">
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="Salary">💼 Salary</option>
+                        <option value="Freelance">💻 Freelance</option>
+                        <option value="Investment">📈 Investment</option>
+                        <option value="Business">🏢 Business</option>
+                        <option value="Rental Income">🏠 Rental Income</option>
+                        <option value="Gift">🎁 Gift</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                    <div class="custom-wrap" id="asset-custom"><input type="text" name="custom_label" class="form-control" placeholder="Enter custom asset name..." maxlength="50"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" class="form-control" placeholder="e.g. 50000" required min="0"></div>
+                <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Date</label><input type="date" name="date" class="form-control"></div>
+                <button type="submit" class="btn btn-asset">+ Add Asset</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-title">Asset Distribution</div>
+            {% if assets %}<div class="chart-box"><canvas id="assetChart"></canvas></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">📊</span>Add assets to see distribution</div>{% endif %}
+        </div>
+    </div>
+    <div class="one-col">
+        <div class="card">
+            <div class="card-title">All Assets</div>
+            {% if assets %}
+            <div class="table-wrap"><table>
+                <thead><tr><th>#</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+                <tbody>{% for asset in assets %}<tr>
+                    <td style="color:var(--muted);font-size:0.82rem;">{{ loop.index }}</td>
+                    <td><span class="badge badge-asset">{{ asset.category }}</span></td>
+                    <td class="amt">₨ {{ "%.2f"|format(asset.amount) }}</td>
+                    <td class="date-cell">{{ asset.date if asset.date else '—' }}</td>
+                    <td><div class="action-btns">
+                        <button class="btn-icon edit" onclick="openEditAsset({{ asset.id }},'{{ asset.category }}',{{ asset.amount }},'{{ asset.date if asset.date else '' }}')">✏️</button>
+                        <form method="POST" action="{{ url_for('delete_asset', asset_id=asset.id) }}" style="display:inline;"><button type="submit" class="btn-icon del">🗑️</button></form>
+                    </div></td>
+                </tr>{% endfor %}</tbody>
+            </table></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">💰</span>No assets yet.</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">🔴 Expenses</div><div class="section-divider-line"></div></div>
+    <div class="two-col">
+        <div class="card expense">
+            <div class="card-title">Add New Expense</div>
+            <form method="POST" action="{{ url_for('assets') }}">
+                <input type="hidden" name="form_type" value="expense">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select" required onchange="toggleCustom(this,'expense-custom')">
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="Food">🍔 Food</option>
+                        <option value="Rent">🏠 Rent</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Utilities">💡 Utilities</option>
+                        <option value="Healthcare">🏥 Healthcare</option>
+                        <option value="Education">📚 Education</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                    <div class="custom-wrap" id="expense-custom"><input type="text" name="custom_label" class="form-control" placeholder="Enter custom expense name..." maxlength="50"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" class="form-control" placeholder="e.g. 5000" required min="0"></div>
+                <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Date</label><input type="date" name="date" class="form-control"></div>
+                <button type="submit" class="btn btn-expense">− Add Expense</button>
+            </form>
+        </div>
+        <div class="card expense">
+            <div class="card-title">Expense Distribution</div>
+            {% if expenses %}<div class="chart-box"><canvas id="expenseChart"></canvas></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">📊</span>Add expenses to see distribution</div>{% endif %}
+        </div>
+    </div>
+    <div class="one-col">
+        <div class="card expense">
+            <div class="card-title">All Expenses</div>
+            {% if expenses %}
+            <div class="table-wrap"><table>
+                <thead><tr><th>#</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+                <tbody>{% for expense in expenses %}<tr>
+                    <td style="color:var(--muted);font-size:0.82rem;">{{ loop.index }}</td>
+                    <td><span class="badge badge-expense">{{ expense.category }}</span></td>
+                    <td class="amt expense">− ₨ {{ "%.2f"|format(expense.amount) }}</td>
+                    <td class="date-cell">{{ expense.date if expense.date else '—' }}</td>
+                    <td><div class="action-btns">
+                        <button class="btn-icon edit" onclick="openEditExpense({{ expense.id }},'{{ expense.category }}',{{ expense.amount }},'{{ expense.date if expense.date else '' }}')">✏️</button>
+                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" style="display:inline;"><button type="submit" class="btn-icon del">🗑️</button></form>
+                    </div></td>
+                </tr>{% endfor %}</tbody>
+            </table></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">🔴</span>No expenses yet.</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- LOANS -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">🤝 Loans</div><div class="section-divider-line"></div></div>
+    <div class="two-col">
+        <div class="card loan">
+            <div class="card-title">Add New Loan</div>
+            <form method="POST" action="{{ url_for('add_loan') }}">
+                <div class="form-group">
+                    <label class="form-label">Loan Type</label>
+                    <div class="loan-toggle">
+                        <input type="radio" name="loan_type" id="gave" value="gave" required>
+                        <label for="gave" class="loan-toggle-btn">💸 I Gave</label>
+                        <input type="radio" name="loan_type" id="took" value="took">
+                        <label for="took" class="loan-toggle-btn">🤲 I Took</label>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Person Name</label><input type="text" name="person" class="form-control" placeholder="e.g. Ahmed" required maxlength="100"></div>
+                <div class="form-group"><label class="form-label">Amount (₨)</label><input type="number" step="0.01" name="amount" class="form-control" placeholder="e.g. 5000" required min="0"></div>
+                <div class="form-group"><label class="form-label">Due Date <span style="color:var(--muted);font-size:0.75rem;">(optional)</span></label><input type="date" name="due_date" class="form-control"></div>
+                <div class="form-group" style="margin-bottom:24px;"><label class="form-label">Description <span style="color:var(--muted);font-size:0.75rem;">(optional)</span></label><input type="text" name="description" class="form-control" placeholder="e.g. For rent" maxlength="200"></div>
+                <button type="submit" class="btn btn-loan">+ Add Loan</button>
+            </form>
+        </div>
+        <div class="card loan">
+            <div class="card-title">Loan Distribution</div>
+            {% if loans %}<div class="chart-box"><canvas id="loanChart"></canvas></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">📊</span>Add loans to see distribution</div>{% endif %}
+        </div>
+    </div>
+    <div class="one-col">
+        {% set gave_loans  = loans | selectattr('loan_type','equalto','gave') | list %}
+        {% set took_loans  = loans | selectattr('loan_type','equalto','took') | list %}
+        {% set gave_unpaid = gave_loans | selectattr('status','equalto','unpaid') | list %}
+        {% set took_unpaid = took_loans | selectattr('status','equalto','unpaid') | list %}
+        <div class="card loan" style="margin-bottom:24px;">
+            <div class="card-title">Loan Overview</div>
+            <div class="loan-stats">
+                <div class="loan-stat gave"><div class="loan-stat-label">💸 I'm Owed</div><div class="loan-stat-value">₨ {{ "%.0f"|format(gave_unpaid|sum(attribute='amount')) if gave_unpaid else 0 }}</div><div class="loan-stat-sub">{{ gave_unpaid|length }} unpaid of {{ gave_loans|length }} total</div></div>
+                <div class="loan-stat took"><div class="loan-stat-label">🤲 I Owe</div><div class="loan-stat-value">₨ {{ "%.0f"|format(took_unpaid|sum(attribute='amount')) if took_unpaid else 0 }}</div><div class="loan-stat-sub">{{ took_unpaid|length }} unpaid of {{ took_loans|length }} total</div></div>
+            </div>
+        </div>
+        <div class="card loan">
+            <div class="card-title">All Loans</div>
+            {% if loans %}
+            <div class="table-wrap"><table>
+                <thead><tr><th>#</th><th>Type</th><th>Person</th><th>Amount</th><th>Due Date</th><th>Description</th><th>Status</th><th></th></tr></thead>
+                <tbody>{% for loan in loans %}<tr>
+                    <td style="color:var(--muted);font-size:0.82rem;">{{ loop.index }}</td>
+                    <td>{% if loan.loan_type == 'gave' %}<span class="badge badge-gave">💸 Gave</span>{% else %}<span class="badge badge-took">🤲 Took</span>{% endif %}</td>
+                    <td style="font-weight:500;">{{ loan.person }}</td>
+                    <td class="amt {% if loan.loan_type == 'gave' %}gave{% else %}took{% endif %}">₨ {{ "%.2f"|format(loan.amount) }}</td>
+                    <td class="date-cell">{{ loan.due_date if loan.due_date else '—' }}</td>
+                    <td style="color:var(--muted);font-size:0.85rem;">{{ loan.description if loan.description else '—' }}</td>
+                    <td><form method="POST" action="{{ url_for('toggle_loan', loan_id=loan.id) }}" style="display:inline;"><button type="submit" class="status-btn {% if loan.status == 'paid' %}status-paid{% else %}status-unpaid{% endif %}">{{ '✅ Paid' if loan.status == 'paid' else '⏳ Unpaid' }}</button></form></td>
+                    <td><div class="action-btns">
+                        <button class="btn-icon edit" onclick="openEditLoan({{ loan.id }},'{{ loan.person }}',{{ loan.amount }},'{{ loan.due_date if loan.due_date else '' }}','{{ loan.description if loan.description else '' }}')">✏️</button>
+                        <form method="POST" action="{{ url_for('delete_loan', loan_id=loan.id) }}" style="display:inline;"><button type="submit" class="btn-icon del">🗑️</button></form>
+                    </div></td>
+                </tr>{% endfor %}</tbody>
+            </table></div>
+            {% else %}<div class="empty-state"><span class="empty-icon">🤝</span>No loans yet.</div>{% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.flash-msg').forEach(el => {
+            el.style.opacity='0'; el.style.transition='opacity 0.5s';
+            setTimeout(()=>el.remove(),500);
+        });
+    }, 4000);
+
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    document.addEventListener('click', e => {
+        const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
+        if (s.classList.contains('open') && !s.contains(e.target) && e.target !== t) s.classList.remove('open');
+    });
+
+    function toggleCustom(sel, id) {
+        const wrap = document.getElementById(id), input = wrap.querySelector('input');
+        if (sel.value === 'Other') { wrap.classList.add('show'); input.required=true; }
+        else { wrap.classList.remove('show'); input.required=false; input.value=''; }
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function openEditAsset(id,category,amount,date) {
+        document.getElementById('editAssetCategory').value=category;
+        document.getElementById('editAssetAmount').value=amount;
+        document.getElementById('editAssetDate').value=date;
+        document.getElementById('editAssetForm').action=`/edit_asset/${id}`;
+        document.getElementById('editAssetModal').classList.add('open');
+    }
+    function openEditExpense(id,category,amount,date) {
+        document.getElementById('editExpenseCategory').value=category;
+        document.getElementById('editExpenseAmount').value=amount;
+        document.getElementById('editExpenseDate').value=date;
+        document.getElementById('editExpenseForm').action=`/edit_expense/${id}`;
+        document.getElementById('editExpenseModal').classList.add('open');
+    }
+    function openEditLoan(id,person,amount,due_date,description) {
+        document.getElementById('editLoanPerson').value=person;
+        document.getElementById('editLoanAmount').value=amount;
+        document.getElementById('editLoanDueDate').value=due_date;
+        document.getElementById('editLoanDescription').value=description;
+        document.getElementById('editLoanForm').action=`/edit_loan/${id}`;
+        document.getElementById('editLoanModal').classList.add('open');
+    }
+
+    function makeChart(id, labels, data, colors) {
+        new Chart(document.getElementById(id), {
+            type: 'doughnut',
+            data: { labels, datasets:[{ data, backgroundColor:colors, borderColor:'#161616', borderWidth:3, hoverOffset:8 }] },
+            options: {
+                responsive:true, maintainAspectRatio:false, cutout:'65%',
+                plugins: {
+                    legend:{ position:'right', labels:{ color:'#f0ece4', font:{family:'DM Sans',size:12}, padding:16, boxWidth:12 } },
+                    tooltip:{ callbacks:{ label:ctx=>` ₨ ${ctx.parsed.toLocaleString()}` }, backgroundColor:'#1e1e1e', borderColor:'#2a2a2a', borderWidth:1, titleColor:'#f0ece4', bodyColor:'#c8a96e', padding:12, cornerRadius:8 }
+                }
+            }
+        });
+    }
+
+    {% if assets %}
+    makeChart('assetChart',
+        [{% for a in assets %}"{{ a.category }}",{% endfor %}],
+        [{% for a in assets %}{{ a.amount }},{% endfor %}],
+        ['rgba(200,169,110,0.85)','rgba(134,239,172,0.85)','rgba(125,211,252,0.85)','rgba(192,132,252,0.85)','rgba(251,191,36,0.85)','rgba(248,113,113,0.85)','rgba(94,234,212,0.85)']
+    );
+    {% endif %}
+    {% if expenses %}
+    makeChart('expenseChart',
+        [{% for e in expenses %}"{{ e.category }}",{% endfor %}],
+        [{% for e in expenses %}{{ e.amount }},{% endfor %}],
+        ['rgba(239,68,68,0.85)','rgba(251,146,60,0.85)','rgba(250,204,21,0.85)','rgba(163,230,53,0.85)','rgba(34,211,238,0.85)','rgba(129,140,248,0.85)','rgba(244,114,182,0.85)']
+    );
+    {% endif %}
+    {% if loans %}
+    makeChart('loanChart',
+        [{% for l in loans %}"{{ l.person }} ({{ l.loan_type }})",{% endfor %}],
+        [{% for l in loans %}{{ l.amount }},{% endfor %}],
+        [{% for l in loans %}"{% if l.loan_type == 'gave' %}rgba(134,239,172,0.85){% else %}rgba(252,165,165,0.85){% endif %}",{% endfor %}]
+    );
+    {% endif %}
+</script>
+</body>
+</html>
